@@ -451,19 +451,22 @@ html.codex-dream-skin .app-shell-left-panel
 
 html.codex-dream-skin[data-dream-art-wide="true"] .app-shell-left-panel
   :is(button.no-drag, button[class~="no-drag"], [role="button"][class~="no-drag"]):not([class*="group/folder-row"]) {
-  border: 1px solid rgb(var(--ds-accent-rgb) / .18) !important;
-  background: rgb(var(--ds-panel-rgb) / .24) !important;
-  color: rgb(var(--ds-muted-rgb) / .98) !important;
+  border: 1px solid rgb(var(--ds-accent-rgb) / .38) !important;
+  background: rgb(var(--ds-panel-rgb) / .46) !important;
+  color: var(--ds-accent) !important;
+  -webkit-text-fill-color: var(--ds-accent) !important;
   opacity: 1 !important;
   box-shadow:
-    0 0 0 1px rgb(var(--ds-neon-rgb) / .05),
-    0 3px 10px rgb(0 0 0 / .10) !important;
+    0 0 0 1px rgb(var(--ds-neon-rgb) / .10),
+    0 0 10px rgb(var(--ds-accent-rgb) / .14),
+    0 3px 10px rgb(0 0 0 / .12) !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"] .app-shell-left-panel
   :is(button.no-drag, button[class~="no-drag"], [role="button"][class~="no-drag"]):not([class*="group/folder-row"])
-  svg {
-  color: currentColor !important;
+  :is(svg, path) {
+  color: var(--ds-accent) !important;
+  stroke: var(--ds-accent) !important;
   opacity: 1 !important;
 }
 
@@ -557,12 +560,15 @@ html.codex-dream-skin .app-shell-left-panel [class*="group/folder-row"][aria-lab
 
 html.codex-dream-skin .app-shell-left-panel [class*="group/folder-row"][aria-label]:hover,
 html.codex-dream-skin .app-shell-left-panel .dream-skin-current-project [class*="group/folder-row"][aria-label] {
-  border-color: rgb(var(--ds-neon-rgb) / .36) !important;
-  background-image: var(--ds-edge-light), var(--ds-row-hover-subtle, var(--ds-row-hover)) !important;
+  border-color: rgb(var(--ds-neon-rgb) / .68) !important;
+  background-image:
+    linear-gradient(90deg, rgb(var(--ds-neon-rgb) / .86), rgb(var(--ds-accent-rgb) / .18)),
+    var(--ds-row-hover-subtle, var(--ds-row-hover)) !important;
   box-shadow:
-    inset 0 1px rgb(var(--ds-text-rgb) / .12),
-    0 0 0 1px rgb(var(--ds-neon-rgb) / .08),
-    0 0 14px rgb(var(--ds-neon-rgb) / .12),
+    inset 4px 0 rgb(var(--ds-neon-rgb) / .74),
+    inset 0 1px rgb(var(--ds-text-rgb) / .16),
+    0 0 0 1px rgb(var(--ds-neon-rgb) / .18),
+    0 0 18px rgb(var(--ds-neon-rgb) / .18),
     0 8px 20px rgb(0 0 0 / .18) !important;
 }
 
@@ -587,13 +593,21 @@ html.codex-dream-skin .app-shell-left-panel [class*="group/folder-row"][aria-lab
 
 html.codex-dream-skin .app-shell-left-panel button[aria-label^="Project actions for"],
 html.codex-dream-skin .app-shell-left-panel button[aria-label^="Start new chat in"] {
-  border: 1px solid rgb(var(--ds-accent-rgb) / .28) !important;
+  border: 1px solid rgb(var(--ds-accent-rgb) / .52) !important;
   border-radius: 8px !important;
-  background: rgb(var(--ds-panel-rgb) / .42) !important;
-  box-shadow: 0 0 0 1px rgb(var(--ds-accent-rgb) / .06),
-    0 0 8px rgb(var(--ds-accent-rgb) / .10) !important;
-  color: var(--ds-text) !important;
+  background: rgb(var(--ds-panel-rgb) / .64) !important;
+  box-shadow:
+    0 0 0 1px rgb(var(--ds-accent-rgb) / .16),
+    0 0 12px rgb(var(--ds-accent-rgb) / .18) !important;
+  color: var(--ds-accent) !important;
+  -webkit-text-fill-color: var(--ds-accent) !important;
   opacity: 1 !important;
+}
+
+html.codex-dream-skin .app-shell-left-panel button[aria-label^="Project actions for"] :is(svg, path),
+html.codex-dream-skin .app-shell-left-panel button[aria-label^="Start new chat in"] :is(svg, path) {
+  color: var(--ds-accent) !important;
+  stroke: var(--ds-accent) !important;
 }
 
 html.codex-dream-skin .app-shell-left-panel button[aria-label^="Project actions for"]:hover,
@@ -1358,25 +1372,25 @@ html.codex-dream-skin [role="main"] {
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
-  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask, .app-shell-left-panel [class*="overflow-y-auto"]) {
+  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask) {
   scrollbar-color: var(--ds-scrollbar-thumb) var(--ds-scrollbar-track) !important;
   scrollbar-width: thin !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
-  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask, .app-shell-left-panel [class*="overflow-y-auto"])::-webkit-scrollbar {
+  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar {
   width: 10px !important;
   height: 10px !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
-  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask, .app-shell-left-panel [class*="overflow-y-auto"])::-webkit-scrollbar-track {
+  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar-track {
   background: var(--ds-scrollbar-track) !important;
   border-radius: 999px !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
-  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask, .app-shell-left-panel [class*="overflow-y-auto"])::-webkit-scrollbar-thumb {
+  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar-thumb {
   min-height: 48px !important;
   border: 2px solid transparent !important;
   border-radius: 999px !important;
@@ -1386,8 +1400,25 @@ html.codex-dream-skin[data-dream-art-wide="true"]
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
-  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask, .app-shell-left-panel [class*="overflow-y-auto"])::-webkit-scrollbar-thumb:hover {
+  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar-thumb:hover {
   background: rgb(var(--ds-caret-rgb) / .82) !important;
+}
+
+html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"] {
+  scrollbar-color: transparent transparent !important;
+  scrollbar-width: none !important;
+}
+
+html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"]::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+}
+
+html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"]::-webkit-scrollbar-track,
+html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"]::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
 }
 
 html.codex-dream-skin .dream-skin-home {

@@ -567,6 +567,39 @@
     return candidates.find((text) => !text.includes("Open in")) || "";
   };
 
+  const isSidebarProjectItem = (item) => Boolean(item?.matches?.('[role="listitem"]') &&
+    item.querySelector?.('[class*="group/folder-row"]'));
+
+  const isSidebarThreadItem = (item) => {
+    if (!item?.matches?.('[role="listitem"]')) return false;
+    if (isSidebarProjectItem(item)) return false;
+    const text = cleanText(item.textContent);
+    if (!text || /^show (more|less)$/i.test(text) || text === "No chats") return false;
+    return true;
+  };
+
+  const sidebarProjectItemForThread = (threadItem) => {
+    let node = threadItem?.parentElement || null;
+    while (node && !node.classList?.contains("app-shell-left-panel")) {
+      if (node !== threadItem && isSidebarProjectItem(node)) return node;
+      node = node.parentElement;
+    }
+    return null;
+  };
+
+  const setCurrentSidebarProject = (nextProject) => {
+    if (currentSidebarProject && (!currentSidebarProject.isConnected || currentSidebarProject !== nextProject)) {
+      currentSidebarProject.classList.remove("dream-skin-current-project");
+    } else if (!currentSidebarProject) {
+      document.querySelector(".app-shell-left-panel .dream-skin-current-project")
+        ?.classList.remove("dream-skin-current-project");
+    }
+    if (nextProject && !nextProject.classList.contains("dream-skin-current-project")) {
+      nextProject.classList.add("dream-skin-current-project");
+    }
+    currentSidebarProject = nextProject || null;
+  };
+
   const setCurrentSidebarItem = (nextCurrent) => {
     if (currentSidebarItem && (!currentSidebarItem.isConnected || currentSidebarItem !== nextCurrent)) {
       currentSidebarItem.classList.remove("dream-skin-current-thread");
@@ -579,40 +612,32 @@
     }
     currentSidebarItem = nextCurrent || null;
 
-    const nextProject = nextCurrent?.parentElement?.closest('.app-shell-left-panel [role="listitem"][aria-label]') || null;
-    if (currentSidebarProject && (!currentSidebarProject.isConnected || currentSidebarProject !== nextProject)) {
-      currentSidebarProject.classList.remove("dream-skin-current-project");
-    } else if (!currentSidebarProject) {
-      document.querySelector(".app-shell-left-panel .dream-skin-current-project")
-        ?.classList.remove("dream-skin-current-project");
-    }
-    if (nextProject && !nextProject.classList.contains("dream-skin-current-project")) {
-      nextProject.classList.add("dream-skin-current-project");
-    }
-    currentSidebarProject = nextProject;
+    if (nextCurrent) setCurrentSidebarProject(sidebarProjectItemForThread(nextCurrent));
   };
 
   const sidebarThreadItemFromEvent = (event) => {
     const item = event.target?.closest?.('.app-shell-left-panel [role="list"] > [role="listitem"]');
-    if (!item || item.hasAttribute("aria-label")) return null;
-    const text = cleanText(item.textContent);
-    if (!text || /^show (more|less)$/i.test(text) || text === "No chats") return null;
-    return item;
+    return isSidebarThreadItem(item) ? item : null;
+  };
+
+  const sidebarProjectItemFromEvent = (event) => {
+    const item = event.target?.closest?.('.app-shell-left-panel [role="list"] > [role="listitem"]');
+    return isSidebarProjectItem(item) ? item : null;
   };
 
   const syncCurrentSidebarThread = () => {
     const title = currentTaskTitle();
-    const items = [...document.querySelectorAll('.app-shell-left-panel [role="list"] > [role="listitem"]')];
+    const items = [...document.querySelectorAll('.app-shell-left-panel [role="list"] > [role="listitem"]')]
+      .filter(isSidebarThreadItem);
     let nextCurrent = null;
     if (title) {
       nextCurrent = items.find((item) => cleanText(item.textContent) === title) || null;
     } else {
+      const existingCurrent = document.querySelector(".app-shell-left-panel .dream-skin-current-thread");
       nextCurrent = items.find((item) => {
-        const text = cleanText(item.textContent);
-        if (!text || /^show (more|less)$/i.test(text) || text === "No chats") return false;
         if (!item.querySelector('[class~="bg-token-list-hover-background"]')) return false;
         return true;
-      }) || document.querySelector(".app-shell-left-panel .dream-skin-current-thread");
+      }) || (isSidebarThreadItem(existingCurrent) ? existingCurrent : null);
     }
     if (nextCurrent) setCurrentSidebarItem(nextCurrent);
   };
@@ -894,6 +919,12 @@
     const item = sidebarThreadItemFromEvent(event);
     if (item) {
       setCurrentSidebarItem(item);
+      return;
+    }
+    const project = sidebarProjectItemFromEvent(event);
+    if (project) {
+      setCurrentSidebarItem(null);
+      setCurrentSidebarProject(project);
     }
   };
   const observer = new MutationObserver(() => scheduleEnsure({ route: true }));

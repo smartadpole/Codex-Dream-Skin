@@ -124,6 +124,21 @@ assert.match(
   "The safety ensure interval should stay low frequency for performance.",
 );
 assert.match(
+  template,
+  /const isSidebarProjectItem = \(item\) => Boolean\(item\?\.matches\?\.\('\[role="listitem"\]'\)[\s\S]{0,160}item\.querySelector\?\.\('\[class\*="group\/folder-row"\]'\)\);/,
+  "Sidebar project containers must be detected separately from leaf thread rows.",
+);
+assert.match(
+  template,
+  /const isSidebarThreadItem = \(item\) => \{[\s\S]{0,240}if \(isSidebarProjectItem\(item\)\) return false;/,
+  "Current-thread sync must never mark an entire project container as the active thread.",
+);
+assert.match(
+  template,
+  /const sidebarProjectItemForThread = \(threadItem\) => \{[\s\S]{0,360}isSidebarProjectItem\(node\)/,
+  "Leaf thread rows should still resolve their owning project for project-title highlighting.",
+);
+assert.match(
   injectorScript,
   /watchFs\(directory,\s*\{\s*persistent:\s*true\s*\}/,
   "The watcher must stay resident after startup so route changes and hot reloads remain covered.",
@@ -208,6 +223,16 @@ assert.match(
   /\.thread-scroll-container[\s\S]{0,180}scrollbar-color:\s*var\(--ds-scrollbar-thumb\) var\(--ds-scrollbar-track\) !important;/,
   "Thread scroll containers must expose a visible themed scrollbar.",
 );
+assert.doesNotMatch(
+  css,
+  /:is\([^)]*\.app-shell-left-panel \[class\*="overflow-y-auto"\][^)]*\)[\s\S]{0,120}scrollbar-color:\s*var\(--ds-scrollbar-thumb\)/,
+  "Sidebar project lists must not inherit the prominent themed content scrollbar.",
+);
+assert.match(
+  css,
+  /\.app-shell-left-panel \[class\*="overflow-y-auto"\][\s\S]{0,120}scrollbar-width:\s*none !important;/,
+  "Sidebar project lists should hide their scrollbar while preserving native scrolling.",
+);
 assert.match(
   css,
   /button\[aria-label="Show less"\][\s\S]{0,620}div\[class~="py-1"\] > button\[class~="no-drag"\][\s\S]{0,180}opacity:\s*1 !important;/,
@@ -225,8 +250,13 @@ assert.match(
 );
 assert.match(
   css,
-  /\.app-shell-left-panel[\s\S]{0,180}:is\(button\.no-drag, button\[class~="no-drag"\], \[role="button"\]\[class~="no-drag"\]\):not\(\[class\*="group\/folder-row"\]\)[\s\S]{0,240}background:\s*rgb\(var\(--ds-panel-rgb\) \/ \.24\) !important;/,
-  "Sidebar no-drag icon buttons should keep a subtle backing over wallpaper.",
+  /\.app-shell-left-panel[\s\S]{0,180}:is\(button\.no-drag, button\[class~="no-drag"\], \[role="button"\]\[class~="no-drag"\]\):not\(\[class\*="group\/folder-row"\]\)[\s\S]{0,240}background:\s*rgb\(var\(--ds-panel-rgb\) \/ \.46\) !important;[\s\S]{0,80}color:\s*var\(--ds-accent\) !important;/,
+  "Sidebar no-drag icon buttons should keep a visible themed backing and accent foreground over wallpaper.",
+);
+assert.match(
+  css,
+  /\.dream-skin-current-project \[class\*="group\/folder-row"\]\[aria-label\][\s\S]{0,220}border-color:\s*rgb\(var\(--ds-neon-rgb\) \/ \.68\) !important;/,
+  "The current project title should be more prominent than an ordinary sidebar hover row.",
 );
 assert.match(
   css,

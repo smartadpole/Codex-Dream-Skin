@@ -36,7 +36,11 @@
   must each sit on a readable themed surface while the wallpaper remains
   recognizable between them.
 - Sidebar project headers: project names are visibly distinct from normal task
-  rows through bold type, themed glass backing, and an accent line/border.
+  rows through bold type, themed glass backing, and an accent line/border. When
+  a project is current but the new conversation has no committed thread title,
+  only the project title should be highlighted.
+- Sidebar selection: `dream-skin-current-thread` appears on at most one leaf
+  conversation row and never on the project container that wraps child rows.
 - Sidebar fold controls: `Show more` and `Show less` are both visible at rest,
   readable over the wallpaper, and gain a clear hover state.
 - Header and side-panel buttons: `Open in`, secondary actions, panel toggles,
@@ -46,7 +50,8 @@
   icon-only `no-drag` controls are visible at rest, not only after hover.
 - Composer and scrolling: the typing caret is high-contrast in the editor, and
   the right-side conversation scrollbar appears with a themed thumb while
-  scrolling.
+  scrolling; the left project list remains scrollable without prominent
+  scrollbar chrome.
 - Markdown content: hyperlinks keep an accent highlight/underline, and
   screenshot/image Markdown renders as visible framed images instead of raw
   `![alt](path)` text where the renderer supports local images.
