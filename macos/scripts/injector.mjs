@@ -529,14 +529,14 @@ async function verifySession(session) {
     };
     const homeIndicator = document.querySelector('[data-testid="home-icon"]');
     const homeSignal = homeIndicator ?? document.querySelector('[data-feature="game-source"]') ??
-      document.querySelector('.group\\\\/home-suggestions');
+      document.querySelector('.group\\/home-suggestions');
     const homeRoute = homeSignal?.closest('[role="main"]') ?? null;
     const home = document.querySelector('[role="main"].dream-skin-home');
-    const suggestions = home?.querySelector('.group\\\\/home-suggestions') ?? null;
+    const suggestions = home?.querySelector('.group\\/home-suggestions') ?? null;
     const cardBoxes = suggestions ? [...suggestions.querySelectorAll('button')].map(box) : [];
     const visibleCards = cardBoxes.filter((item) => item?.visible);
     const hero = box(home?.firstElementChild?.firstElementChild?.firstElementChild);
-    const projectButton = box(home?.querySelector('.group\\\\/project-selector > button'));
+    const projectButton = box(home?.querySelector('.group\\/project-selector > button'));
     const shell = box(document.querySelector('.main-surface'));
     const composer = box(document.querySelector('.composer-surface-chrome'));
     const sidebar = box(document.querySelector('.app-shell-left-panel'));

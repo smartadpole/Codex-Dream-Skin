@@ -588,12 +588,10 @@
   };
 
   const setCurrentSidebarProject = (nextProject) => {
-    if (currentSidebarProject && (!currentSidebarProject.isConnected || currentSidebarProject !== nextProject)) {
-      currentSidebarProject.classList.remove("dream-skin-current-project");
-    } else if (!currentSidebarProject) {
-      document.querySelector(".app-shell-left-panel .dream-skin-current-project")
-        ?.classList.remove("dream-skin-current-project");
-    }
+    document.querySelectorAll(".app-shell-left-panel .dream-skin-current-project")
+      .forEach((node) => {
+        if (node !== nextProject) node.classList.remove("dream-skin-current-project");
+      });
     if (nextProject && !nextProject.classList.contains("dream-skin-current-project")) {
       nextProject.classList.add("dream-skin-current-project");
     }
@@ -601,12 +599,11 @@
   };
 
   const setCurrentSidebarItem = (nextCurrent) => {
-    if (currentSidebarItem && (!currentSidebarItem.isConnected || currentSidebarItem !== nextCurrent)) {
-      currentSidebarItem.classList.remove("dream-skin-current-thread");
-    } else if (!currentSidebarItem) {
-      document.querySelector(".app-shell-left-panel .dream-skin-current-thread")
-        ?.classList.remove("dream-skin-current-thread");
-    }
+    nextCurrent = isSidebarThreadItem(nextCurrent) ? nextCurrent : null;
+    document.querySelectorAll(".app-shell-left-panel .dream-skin-current-thread")
+      .forEach((node) => {
+        if (node !== nextCurrent) node.classList.remove("dream-skin-current-thread");
+      });
     if (nextCurrent && !nextCurrent.classList.contains("dream-skin-current-thread")) {
       nextCurrent.classList.add("dream-skin-current-thread");
     }
@@ -639,7 +636,12 @@
         return true;
       }) || (isSidebarThreadItem(existingCurrent) ? existingCurrent : null);
     }
-    if (nextCurrent) setCurrentSidebarItem(nextCurrent);
+    setCurrentSidebarItem(nextCurrent);
+    if (!nextCurrent) {
+      const selectedProject = [...document.querySelectorAll('.app-shell-left-panel [role="list"] > [role="listitem"]')]
+        .find((item) => isSidebarProjectItem(item) && item.querySelector('[class~="bg-token-list-hover-background"]')) || null;
+      setCurrentSidebarProject(selectedProject);
+    }
   };
 
   const scheduleCurrentSidebarThreadSync = () => {
@@ -753,7 +755,7 @@
     const home = homeIndicator?.closest('[role="main"]') ||
       [...document.querySelectorAll('[role="main"]')].find((candidate) =>
         candidate.querySelector('[data-feature="game-source"]') &&
-        candidate.querySelector('.group\\\\/home-suggestions')) || null;
+        candidate.querySelector('.group\\/home-suggestions')) || null;
     for (const candidate of document.querySelectorAll('[role="main"].dream-skin-home')) {
       if (candidate !== home) candidate.classList.remove("dream-skin-home");
     }

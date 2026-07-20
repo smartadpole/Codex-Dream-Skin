@@ -73,6 +73,26 @@ assert.match(
   "Renderer should publish route state so CSS does not need global route :has selectors.",
 );
 assert.match(
+  template,
+  /querySelector\('\.group\\\\\/home-suggestions'\)/,
+  "Renderer should use a valid escaped class selector for group/home-suggestions.",
+);
+assert.doesNotMatch(
+  template,
+  /querySelector\('\.group\\\\\\\\\/home-suggestions'\)/,
+  "Renderer must not over-escape group/home-suggestions inside a JavaScript selector literal.",
+);
+assert.match(
+  injectorScript,
+  /querySelector\('\.group\\\\\/home-suggestions'\)/,
+  "Injector verification should use a valid escaped class selector for group/home-suggestions.",
+);
+assert.doesNotMatch(
+  injectorScript,
+  /querySelector\('\.group\\\\\\\\\/home-suggestions'\)/,
+  "Injector verification must not over-escape group/home-suggestions.",
+);
+assert.match(
   css,
   /data-dream-art-wide="true"\]\s+\.composer-surface-chrome\s*\{[\s\S]{0,500}backdrop-filter:\s*var\(--ds-readable-filter\) !important;/,
   "Wide artwork should use one uniform cinematic glass composer surface.",
