@@ -72,25 +72,30 @@ assert.match(
   /setAttribute\(root,\s*"data-dream-route",\s*home \? "home" : "task"\);/,
   "Renderer should publish route state so CSS does not need global route :has selectors.",
 );
-assert.match(
-  template,
-  /querySelector\('\.group\\\\\/home-suggestions'\)/,
-  "Renderer should use a valid escaped class selector for group/home-suggestions.",
+assert.ok(
+  template.includes('const cssClassSelector = (className) => `.${globalThis.CSS?.escape?.(className) || className.replace(/\\//g, "\\\\/")}`;'),
+  "Renderer should build slash-bearing class selectors with CSS.escape instead of hand-written querySelector literals.",
+);
+assert.ok(
+  template.includes('candidate.querySelector(cssClassSelector("group/home-suggestions"))') &&
+    template.includes('candidate.querySelector(cssClassSelector("group/project-selector"))'),
+  "Renderer should identify the home route even when the current Codex build omits home suggestion cards.",
 );
 assert.doesNotMatch(
   template,
-  /querySelector\('\.group\\\\\\\\\/home-suggestions'\)/,
-  "Renderer must not over-escape group/home-suggestions inside a JavaScript selector literal.",
+  /querySelector\('\.group\\*\/home-suggestions'\)/,
+  "Renderer must not hand-write group/home-suggestions selector literals.",
 );
-assert.match(
-  injectorScript,
-  /querySelector\('\.group\\\\\/home-suggestions'\)/,
-  "Injector verification should use a valid escaped class selector for group/home-suggestions.",
+assert.ok(
+  injectorScript.includes("const cssClassSelector = (className) => \\`.\\${CSS.escape(className)}\\`;") &&
+    injectorScript.includes("document.querySelector(cssClassSelector('group/home-suggestions'))") &&
+    injectorScript.includes("document.querySelector(cssClassSelector('group/project-selector'))"),
+  "Injector verification should build slash-bearing class selectors with CSS.escape.",
 );
 assert.doesNotMatch(
   injectorScript,
-  /querySelector\('\.group\\\\\\\\\/home-suggestions'\)/,
-  "Injector verification must not over-escape group/home-suggestions.",
+  /querySelector\('\.group\\*\/home-suggestions'\)/,
+  "Injector verification must not hand-write group/home-suggestions selector literals.",
 );
 assert.match(
   css,

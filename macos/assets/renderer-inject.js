@@ -555,6 +555,7 @@
   };
 
   const cleanText = (value) => String(value || "").replace(/\s+/g, " ").trim();
+  const cssClassSelector = (className) => `.${globalThis.CSS?.escape?.(className) || className.replace(/\//g, "\\/")}`;
 
   const currentTaskTitle = () => {
     const header = document.querySelector(".main-surface > header.app-header-tint") ||
@@ -754,8 +755,9 @@
     const homeIndicator = document.querySelector('[data-testid="home-icon"]');
     const home = homeIndicator?.closest('[role="main"]') ||
       [...document.querySelectorAll('[role="main"]')].find((candidate) =>
-        candidate.querySelector('[data-feature="game-source"]') &&
-        candidate.querySelector('.group\\/home-suggestions')) || null;
+        candidate.querySelector('[data-feature="game-source"]') ||
+        candidate.querySelector(cssClassSelector("group/home-suggestions")) ||
+        candidate.querySelector(cssClassSelector("group/project-selector"))) || null;
     for (const candidate of document.querySelectorAll('[role="main"].dream-skin-home')) {
       if (candidate !== home) candidate.classList.remove("dream-skin-home");
     }
