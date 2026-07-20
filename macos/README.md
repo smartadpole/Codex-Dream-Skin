@@ -24,7 +24,7 @@ This project injects through **local loopback CDP**. It does **not** modify the 
 ./scripts/install-dream-skin-macos.sh --no-launch
 
 # 3) Switch to the tested featured preset, or import your own pure background
-~/.codex/codex-dream-skin-studio/scripts/switch-theme-macos.sh --id preset-arina-hashimoto
+~/.codex/codex-dream-skin-studio/scripts/switch-theme-macos.sh --id preset-romantic-rose
 # ~/.codex/codex-dream-skin-studio/scripts/customize-theme-macos.sh
 
 # 4) Start/re-apply, verify, or restore via Desktop:
@@ -74,28 +74,38 @@ CDP is powerful and unauthenticated on loopback. Prefer Restore when you are don
 
 ## Bundled presets
 
-A fresh install seeds two tested presets into your theme library:
-**Gothic Void Crusade** and **桥本有菜 / Arina Hashimoto**. Gothic Void Crusade
-is the default when no active theme exists. Switch to Arina Hashimoto with:
+A fresh install seeds one tested featured preset plus five procedural abstract
+presets into your theme library. **桥本有菜 / Arina Hashimoto** is highlighted
+first here:
 
 ```bash
-~/.codex/codex-dream-skin-studio/scripts/switch-theme-macos.sh --id preset-arina-hashimoto
+~/.codex/codex-dream-skin-studio/scripts/switch-theme-macos.sh --id preset-romantic-rose
 ```
 
 The user-provided source PNG is `1672 × 941`. Its pack contains a standardized
 derived `2560 × 1440` JPEG plus theme metadata; the derived export does not add
 source detail. The byte-identical source PNG is archived at
-[`docs/images/presets/arina-hashimoto-source.png`](../docs/images/presets/arina-hashimoto-source.png).
-The [light](../docs/images/presets/arina-hashimoto-light.jpg) and
-[dark](../docs/images/presets/arina-hashimoto-dark.jpg) images are real injected
+[`docs/images/presets/romantic-rose-source.png`](../docs/images/presets/romantic-rose-source.png).
+The [light](../docs/images/presets/romantic-rose-light.jpg) and
+[dark](../docs/images/presets/romantic-rose-dark.jpg) images are real injected
 Codex screenshots for preview only — never import either screenshot as a
 background. The artwork is a user-provided AI-generated example, not an
 official OpenAI/Codex visual or endorsement; confirm likeness and asset rights
 before redistributing it.
 
-Seeding is idempotent. Upgrades remove only retired bundled preset IDs; your
-own `custom-*` themes from “换一张图” and the currently active theme copy are
-never touched.
+The other five presets — **午夜极光 / 樱粉晨曦 / 琥珀黄昏 / 森野薄雾 /
+赛博霓虹** — are generated procedurally (pure Node + zlib, no photos, no
+third-party art or likeness) by `presets/generate-presets.mjs`. Apply one
+directly, for example:
+
+```bash
+~/.codex/codex-dream-skin-studio/scripts/switch-theme-macos.sh --id preset-midnight-aurora
+```
+
+Seeding is idempotent and only manages `preset-*` packs — your own `custom-*`
+themes from “换一张图” are never touched. If no active theme exists yet, install
+starts from the neutral **Midnight Aurora** preset; it never overwrites an
+existing active theme.
 
 To contribute a preset, see [`presets/README.md`](./presets/README.md).
 
@@ -104,6 +114,9 @@ To contribute a preset, see [`presets/README.md`](./presets/README.md).
 - PNG / JPEG / HEIC / TIFF / WebP (macOS readable)
 - Source ≤ 50 MB; prepared file ≤ 16 MB, ≤ 16384 px per side, and ≤ 50 MP
 - `2560 × 1440` (16:9) is the recommended master size; width ≥ 2000 px minimum
+- Import keeps real source detail: images larger than 3840 px on either side
+  are downscaled to fit; smaller images are converted without upscaling. Do
+  not enlarge a low-resolution source and call it sharper.
 - Keep roughly the left 50%–58% calm and low-contrast for native home content;
   place the subject in the right 58%–88% without touching the edge
 - Use pure edge-to-edge background art only: no window chrome, sidebar, cards,
@@ -152,6 +165,91 @@ fields. Explicit art metadata (`focusX`, `focusY`, `safeArea`, `taskMode`) has
 the same priority over automatic inference. The home route remains expressive;
 task routes keep native content, cards, composer, and code readable above the
 image layer.
+
+### Readability strategy
+
+The skin separates atmosphere from work surfaces. The wallpaper stays clear and
+continuous in the gaps between UI, while every text-bearing region owns an
+opaque or near-opaque theme-colored surface:
+
+- home prompt, project picker, composer, and suggestion cards use the adaptive
+  palette as a readable surface instead of relying on global blur;
+- task/conversation routes keep the wallpaper visible behind the thread, but
+  user bubbles, assistant markdown, attachment cards, diff/status cards,
+  composer, header, sidebar, and summary/environment panels each receive their
+  own solid or gradient backing;
+- sidebar project headers and compact action buttons are foreground controls:
+  project names should use bold type plus a themed backing, and icon-only
+  buttons need a solid fill or accent glow so they do not disappear over art;
+- global task-route shading should be light enough to preserve image mood.
+  Increase the local text surface first; do not wash out the whole background;
+- generated shadows and borders use the extracted accent color so the UI feels
+  themed without hiding the artwork.
+
+### Cinematic glass balance
+
+Complex wallpaper needs a different balance than flat abstract art. Prefer a
+cinematic glass stack over opaque cards:
+
+- keep the image legible with light vignettes and local surfaces, not a
+  full-page white/dark veil;
+- make text surfaces translucent but stable, using theme-tinted glass,
+  `backdrop-filter`, a fine accent border, and a soft shadow;
+- avoid making every sidebar row a heavy card. Project headers and the current
+  row can be stronger, while ordinary rows should use a subtle backing and a
+  small accent line;
+- compact controls should read as luminous controls: lighter fill by default,
+  stronger border/glow on hover or focus;
+- hover and focus states are part of readability. They must remain visible even
+  when Codex changes internal row classes, so selectors should cover native
+  buttons, links, role buttons, and `cursor-interaction` rows where scoped.
+- real Codex buttons often carry `no-drag` instead of stable feature classes.
+  In wide image skins, give scoped `no-drag` buttons a minimum visible fill,
+  border, icon color, and hover glow so message actions and utility controls
+  cannot disappear over dark glass;
+- sidebar expansion controls (`Show more` / `Show less`) are navigation
+  affordances, not placeholder text. Keep them visible with a light themed
+  backing, readable muted text, and a hover state;
+- conversation markdown still needs semantic contrast: file links should keep
+  an accent underline/glow, screenshots should render as framed images, and
+  local verification screenshots should prefer paths without spaces so the
+  Codex renderer does not fall back to raw Markdown text.
+
+### Neo-cinematic depth
+
+When a complex image still feels too flat or office-like, widen the contrast
+range instead of adding larger cards:
+
+- task pages may enter a darker neo-cinematic glass mode for wide artwork,
+  even when the native shell is light, so the wallpaper reads like a skin
+  rather than a pale document background;
+- use a subtle vignette, environmental neon tint, and dark sidebar glass to add
+  depth behind content without covering the subject;
+- foreground cards should use translucent dark glass with a small highlight
+  sheen, not flat white or beige panels;
+- selection and hover should look like controls waking up: accent edge line,
+  fine border, and restrained glow, while resting rows stay quiet.
+- typing and scrolling remain part of the skin: the composer caret should use
+  the high-contrast accent, and scroll containers should expose a visible thin
+  themed scrollbar while scrolling.
+
+### Performance Budget
+
+Full-window image skins must stay close to native Codex resource use. The
+acceptance target is: with the wallpaper, readable foreground, hover/focus, file
+cards, links, images, composer, and scroll affordances enabled, Renderer /
+WindowServer / GPU pressure should not grow more than about 30% over the same
+window without the skin.
+
+For wide or complex artwork, prefer low-compositor-cost glass:
+
+- keep the wallpaper and local dark glass surfaces, but avoid live
+  `backdrop-filter` blur on every streamed message/card;
+- avoid `background-attachment: fixed` and blend modes on task routes;
+- coalesce DOM mutation handling with timer debounce, not rAF-frequency
+  `ensure()` calls during streaming;
+- use subtle static borders, gradients, and shadows for depth before adding
+  blur, animated glow, or repeated filter effects.
 
 CLI example:
 

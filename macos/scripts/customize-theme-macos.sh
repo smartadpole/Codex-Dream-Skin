@@ -7,9 +7,9 @@ IMAGE=""
 THEME_NAME=""
 TAGLINE=""
 QUOTE=""
-ACCENT="#7cff46"
-SECONDARY="#36d7e8"
-HIGHLIGHT="#642a8c"
+ACCENT=""
+SECONDARY=""
+HIGHLIGHT=""
 APPLY_NOW="true"
 RESET_DEMO="false"
 
@@ -57,8 +57,15 @@ else
   prepared="$THEME_DIR/$image_name"
   cleanup_temporary() { /bin/rm -f "$temporary"; }
   trap cleanup_temporary EXIT
-  /usr/bin/sips -s format jpeg -s formatOptions 84 -Z 3200 "$IMAGE" --out "$temporary" >/dev/null \
-    || fail "macOS could not convert the selected image. Use PNG, JPEG, HEIC, TIFF, or WebP."
+  source_width="$(/usr/bin/sips -g pixelWidth "$IMAGE" 2>/dev/null | /usr/bin/awk '/pixelWidth:/ { print $2; exit }')"
+  source_height="$(/usr/bin/sips -g pixelHeight "$IMAGE" 2>/dev/null | /usr/bin/awk '/pixelHeight:/ { print $2; exit }')"
+  if [ "${source_width:-0}" -gt 3840 ] || [ "${source_height:-0}" -gt 3840 ]; then
+    /usr/bin/sips -s format jpeg -s formatOptions 94 -Z 3840 "$IMAGE" --out "$temporary" >/dev/null \
+      || fail "macOS could not convert the selected image. Use PNG, JPEG, HEIC, TIFF, or WebP."
+  else
+    /usr/bin/sips -s format jpeg -s formatOptions 94 "$IMAGE" --out "$temporary" >/dev/null \
+      || fail "macOS could not convert the selected image. Use PNG, JPEG, HEIC, TIFF, or WebP."
+  fi
   [ -s "$temporary" ] || fail "The converted image is empty."
   PREPARED_BYTES="$(/usr/bin/stat -f '%z' "$temporary")"
   [ "$PREPARED_BYTES" -le 16777216 ] || fail "The prepared image is larger than 16 MB. Choose a simpler or smaller image."
@@ -68,7 +75,9 @@ else
   "$NODE" "$SCRIPT_DIR/write-theme.mjs" custom \
     --output-dir "$THEME_DIR" --image "$image_name" \
     --name "$THEME_NAME" --tagline "$TAGLINE" --quote "$QUOTE" \
-    --accent "$ACCENT" --secondary "$SECONDARY" --highlight "$HIGHLIGHT"
+    ${ACCENT:+--accent "$ACCENT"} \
+    ${SECONDARY:+--secondary "$SECONDARY"} \
+    ${HIGHLIGHT:+--highlight "$HIGHLIGHT"}
   /usr/bin/find "$THEME_DIR" -maxdepth 1 -type f -name 'background-*' ! -name "$image_name" -delete
   trap - EXIT
 fi

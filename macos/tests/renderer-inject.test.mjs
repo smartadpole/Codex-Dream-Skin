@@ -8,6 +8,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const macosRoot = path.resolve(here, "..");
 const template = await fs.readFile(path.join(macosRoot, "assets", "renderer-inject.js"), "utf8");
 const css = await fs.readFile(path.join(macosRoot, "assets", "dream-skin.css"), "utf8");
+const injectorScript = await fs.readFile(path.join(macosRoot, "scripts", "injector.mjs"), "utf8");
+const commonScript = await fs.readFile(path.join(macosRoot, "scripts", "common-macos.sh"), "utf8");
 
 assert.doesNotMatch(
   css,
@@ -52,23 +54,104 @@ assert.match(
 );
 assert.match(
   css,
-  /data-dream-art-wide="true"\]:has\(main\.main-surface\.dream-skin-home-shell\)[\s\S]{0,100}body\s*\{[\s\S]{0,300}background-image:\s*var\(--dream-skin-art\) !important;/,
+  /data-dream-art-wide="true"\]\[data-dream-route="home"\]\s+body\s*\{[\s\S]{0,700}background-image:\s*var\(--dream-skin-art\) !important;/,
   "Wide home artwork should use the same full-window image as utility routes.",
 );
 assert.match(
   css,
-  /data-dream-art-wide="true"\]:has\(main\.main-surface\.dream-skin-home-shell\)[\s\S]{0,120}body\s*\{[\s\S]{0,260}background-position:\s*var\(--ds-art-position\) !important;/,
+  /data-dream-art-wide="true"\]\[data-dream-route="home"\]\s+body\s*\{[\s\S]{0,700}background-position:\s*var\(--ds-art-position\) !important;/,
   "Wide home artwork must honor the configured focal point instead of forcing a centered crop.",
 );
 assert.match(
   css,
-  /data-dream-art-task-mode="ambient"[\s\S]{0,260}data-dream-art-wide="true"\]:has\(main\.main-surface:not\(\.dream-skin-home-shell\)\)[\s\S]{0,120}body\s*\{[\s\S]{0,260}background-position:\s*var\(--ds-art-position\) !important;/,
+  /data-dream-art-task-mode="ambient"[\s\S]{0,260}data-dream-art-wide="true"\]\[data-dream-route="task"\]\s+body\s*\{[\s\S]{0,260}background-position:\s*var\(--ds-art-position\) !important;/,
   "Wide task artwork must retain the same focal point as the home route.",
 );
 assert.match(
+  template,
+  /setAttribute\(root,\s*"data-dream-route",\s*home \? "home" : "task"\);/,
+  "Renderer should publish route state so CSS does not need global route :has selectors.",
+);
+assert.match(
   css,
-  /data-dream-art-wide="true"\]\s+\.composer-surface-chrome\s*\{[\s\S]{0,500}backdrop-filter:\s*none !important;/,
-  "Wide artwork should use one uniform composer surface without a split blur layer.",
+  /data-dream-art-wide="true"\]\s+\.composer-surface-chrome\s*\{[\s\S]{0,500}backdrop-filter:\s*var\(--ds-readable-filter\) !important;/,
+  "Wide artwork should use one uniform cinematic glass composer surface.",
+);
+assert.match(
+  css,
+  /data-dream-art-wide="true"\]\s*\{[\s\S]{0,120}--ds-readable-filter:\s*none !important;/,
+  "Wide complex-image skins should default to a low-compositor-cost glass surface.",
+);
+const performanceGuardIndex = css.indexOf("/* Performance guard for complex full-window art.");
+const bodyAttachmentGuardIndex = css.indexOf(
+  'html.codex-dream-skin[data-dream-art-wide="true"] body,',
+  performanceGuardIndex,
+);
+const bodyAttachmentScrollIndex = css.indexOf(
+  "background-attachment: scroll !important;",
+  bodyAttachmentGuardIndex,
+);
+assert.ok(
+  performanceGuardIndex >= 0 &&
+    bodyAttachmentGuardIndex > performanceGuardIndex &&
+    bodyAttachmentScrollIndex > bodyAttachmentGuardIndex &&
+    bodyAttachmentScrollIndex - bodyAttachmentGuardIndex < 1200,
+  "Wide task wallpaper must avoid fixed background repaint costs.",
+);
+assert.match(
+  css,
+  /\.app-shell-left-panel \[class\*="group\/folder-row"\]\[aria-label\],[\s\S]{0,1600}backdrop-filter:\s*none !important;/,
+  "Wide complex-image skins should keep sidebar project rows off live backdrop filters.",
+);
+assert.match(
+  css,
+  /\.main-surface button\[class\*="cursor-interaction"\],[\s\S]{0,900}backdrop-filter:\s*none !important;/,
+  "Wide complex-image skins should keep high-frequency action buttons off live backdrop filters.",
+);
+assert.match(
+  css,
+  /\.main-surface:not\(\.dream-skin-home-shell\)::after\s*\{[\s\S]{0,80}mix-blend-mode:\s*normal !important;/,
+  "Wide task vignette must avoid compositor-heavy blend modes.",
+);
+assert.match(
+  template,
+  /const delay = layout \? 160 : 240;[\s\S]{0,80}scheduler\.timeout = setTimeout\(flushScheduledEnsure, delay\);/,
+  "Renderer ensure passes should be timer-debounced instead of rAF-frequency during streaming.",
+);
+assert.match(
+  template,
+  /setInterval\(\(\) => ensure\(\), 15000\)/,
+  "The safety ensure interval should stay low frequency for performance.",
+);
+assert.match(
+  injectorScript,
+  /watchFs\(directory,\s*\{\s*persistent:\s*true\s*\}/,
+  "The watcher must stay resident after startup so route changes and hot reloads remain covered.",
+);
+assert.match(
+  commonScript,
+  /launchctl bootstrap "gui\/\$\(\/usr\/bin\/id -u\)" "\$INJECTOR_PLIST"/,
+  "The watcher must be managed outside the starter shell so it remains alive after startup.",
+);
+assert.match(
+  commonScript,
+  /const args = \[nodePath, injectorPath, "--watch", "--port", port, "--theme-dir", themeDir\]/,
+  "The generated LaunchAgent must launch the injector watcher with explicit tokenized arguments.",
+);
+assert.match(
+  commonScript,
+  /index\(\$0, node\)[\s\S]{0,180}index\(\$0, inj\)[\s\S]{0,180}index\(\$0, "--watch"\)[\s\S]{0,180}index\(\$0, "--port " port " --theme-dir "\)/,
+  "Watcher state must be written from the real node/injector/port process, not a wrapper PID.",
+);
+assert.match(
+  commonScript,
+  /pid=\$3; found=1 \} END \{ if \(found\) print pid \}/,
+  "launchctl PID discovery must not close its input early under pipefail.",
+);
+assert.match(
+  injectorScript,
+  /const pollDelay = sessions\.size \? 3000 : \(targets\.length \? 1000 : 500\);/,
+  "The outer watcher should not poll CDP at sub-second cadence once a Codex session is active.",
 );
 assert.match(
   css,
@@ -97,13 +180,13 @@ assert.match(
 );
 assert.match(
   css,
-  /\.composer-surface-chrome button:not\(\[class~="bg-token-foreground"\]\) \*\s*\{[\s\S]{0,80}color:\s*currentColor !important;/,
-  "Nested labels inside composer controls must inherit the corrected theme color.",
+  /\.composer-surface-chrome[\s\S]{0,160}:is\(\.ProseMirror, \[contenteditable="true"\], textarea, input\)[\s\S]{0,120}caret-color:\s*rgb\(var\(--ds-caret-rgb, var\(--ds-neon-rgb\)\) \/ 1\) !important;/,
+  "Composer inputs must use an explicit high-contrast caret over image skins.",
 );
 assert.match(
   css,
-  /home-suggestions button \[class~="text-token-text-primary"\]\s*\{[\s\S]{0,80}color:\s*var\(--ds-text\) !important;/,
-  "Home suggestion labels must override native light-shell text tokens with the selected theme color.",
+  /\.composer-surface-chrome button:not\(\[class~="bg-token-foreground"\]\) \*\s*\{[\s\S]{0,80}color:\s*currentColor !important;/,
+  "Nested labels inside composer controls must inherit the corrected theme color.",
 );
 assert.match(
   css,
@@ -119,6 +202,56 @@ assert.match(
   css,
   /\.thread-scroll-container \.bg-gradient-to-t\.from-token-main-surface-primary\s*\{[\s\S]{0,100}background:\s*transparent !important;/,
   "Wide artwork should remove the native opaque fade behind the sticky composer.",
+);
+assert.match(
+  css,
+  /\.thread-scroll-container[\s\S]{0,180}scrollbar-color:\s*var\(--ds-scrollbar-thumb\) var\(--ds-scrollbar-track\) !important;/,
+  "Thread scroll containers must expose a visible themed scrollbar.",
+);
+assert.match(
+  css,
+  /button\[aria-label="Show less"\][\s\S]{0,620}div\[class~="py-1"\] > button\[class~="no-drag"\][\s\S]{0,180}opacity:\s*1 !important;/,
+  "Sidebar Show more/Show less controls must remain visible instead of inheriting placeholder opacity.",
+);
+assert.match(
+  css,
+  /button\[class~="no-drag"\]\[class\*="!text-token-input-placeholder-foreground"\][\s\S]{0,160}-webkit-text-fill-color:\s*var\(--ds-text\) !important;[\s\S]{0,80}opacity:\s*1 !important;/,
+  "Sidebar fold controls must override Codex's forced placeholder text class.",
+);
+assert.match(
+  css,
+  /:is\(button\.no-drag, button\[class~="no-drag"\], \[role="button"\]\[class~="no-drag"\], button\[aria-label="Scroll to bottom"\]\)[\s\S]{0,260}background:\s*var\(--ds-control-solid\) !important;[\s\S]{0,120}color:\s*var\(--ds-text\) !important;/,
+  "Native no-drag buttons, including message actions, must keep a visible fill and icon color.",
+);
+assert.match(
+  css,
+  /\.app-shell-left-panel[\s\S]{0,180}:is\(button\.no-drag, button\[class~="no-drag"\], \[role="button"\]\[class~="no-drag"\]\):not\(\[class\*="group\/folder-row"\]\)[\s\S]{0,240}background:\s*rgb\(var\(--ds-panel-rgb\) \/ \.24\) !important;/,
+  "Sidebar no-drag icon buttons should keep a subtle backing over wallpaper.",
+);
+assert.match(
+  css,
+  /button\[aria-label="Scroll to bottom"\][\s\S]{0,160}background:\s*var\(--ds-control-solid\) !important;/,
+  "The floating scroll-to-bottom button must use the themed button surface.",
+);
+assert.match(
+  css,
+  /:is\(a\[href\], \[role="link"\],[\s\S]{0,1400}color:\s*var\(--ds-link\) !important;[\s\S]{0,320}text-decoration-line:\s*none !important;[\s\S]{0,520}background-size:\s*100% 62%, 100% 2px !important;[\s\S]{0,360}text-shadow:\s*none !important;/,
+  "Markdown links should use the modern high-contrast marker treatment without old underline styling.",
+);
+assert.match(
+  css,
+  /:is\(a\[href\], \[role="link"\],[\s\S]{0,2200}:hover[\s\S]{0,220}color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,320}linear-gradient\(135deg,[\s\S]{0,620}text-shadow:\s*none !important;/,
+  "Markdown link hover should keep text readable with a filled marker surface and no glow blur.",
+);
+assert.match(
+  css,
+  /:is\(img, picture, video, canvas\)[\s\S]{0,180}max-width:\s*min\(100%, 760px\) !important;[\s\S]{0,220}border:\s*1px solid var\(--ds-readable-border\) !important;/,
+  "Rendered screenshots/images should remain visible as framed media.",
+);
+assert.match(
+  css,
+  /\[class\*="bg-token-main-surface-secondary"\][\s\S]{0,700}background-image:\s*var\(--ds-glass-sheen\), var\(--ds-readable-gradient\) !important;/,
+  "Edited-file and attachment cards should inherit the dark glass surface instead of pale native slabs.",
 );
 assert.match(
   css,
@@ -315,11 +448,7 @@ function createFixture(theme, {
     .replace("__DREAM_SKIN_ART_JSON__", JSON.stringify("data:image/png;base64,AA=="))
     .replace("__DREAM_SKIN_THEME_JSON__", JSON.stringify(nextTheme))
     .replace("__DREAM_SKIN_VERSION_JSON__", JSON.stringify("test"))
-    .replace("__DREAM_SKIN_STYLE_REVISION_JSON__", JSON.stringify(cssText))
-    .replace(
-      "__DREAM_SKIN_PAYLOAD_REVISION_JSON__",
-      JSON.stringify(`${nextTheme.id}:${cssText}`),
-    );
+    .replace("__DREAM_SKIN_STYLE_REVISION_JSON__", JSON.stringify(cssText));
   const flushTimers = (maximumDelay = Infinity) => {
     const pending = [...timers.entries()].filter(([, timer]) => timer.delay <= maximumDelay);
     for (const [id, timer] of pending) {
@@ -366,8 +495,13 @@ assert.equal(defaultMetrics.rootPasses, 1);
 assert.equal(defaultMetrics.routePasses, 1);
 assert.equal(defaultMetrics.layoutReads, 1);
 for (let index = 0; index < 50; index += 1) defaults.observers[0].callback([]);
-assert.equal(defaults.timers.size, 1, "Mutation bursts should coalesce into one scheduled ensure.");
-defaults.flushTimers(64);
+assert.ok(defaults.window.__CODEX_DREAM_SKIN_STATE__.scheduler.timeout, "Mutation bursts should schedule an ensure.");
+assert.equal(
+  [...defaults.timers.values()].filter((timer) => timer.delay === 240).length,
+  1,
+  "Mutation bursts should coalesce into one scheduled ensure.",
+);
+defaults.flushTimers(240);
 assert.equal(defaultMetrics.rootPasses, 1, "Subtree mutations must not recompute root theme tokens.");
 assert.equal(defaultMetrics.routePasses, 2);
 assert.equal(defaultMetrics.layoutReads, 1, "Subtree mutations must not force shell layout reads.");
@@ -376,7 +510,7 @@ assert.ok(defaults.resizeObservers[0].target);
 defaults.shellBox.left = 196;
 defaults.shellBox.width = 1084;
 defaults.resizeObservers[0].callback([]);
-defaults.flushTimers(64);
+defaults.flushTimers(160);
 assert.equal(defaultMetrics.layoutReads, 2, "Shell ResizeObserver changes must refresh chrome geometry.");
 const defaultChrome = defaults.nodes.get("codex-dream-skin-chrome");
 assert.equal(defaultChrome.style.values.get("left"), "196px");
@@ -404,7 +538,7 @@ assert.equal(shellFollow.attributes.get("data-dream-shell"), "light");
 defaults.root.className = "";
 defaults.body.setAttribute("data-theme", "dark");
 defaults.observers[1].callback([{ type: "attributes", target: defaults.body }]);
-defaults.flushTimers(64);
+defaults.flushTimers(240);
 assert.equal(defaults.attributes.get("data-dream-shell"), "dark", "Body theme changes must apply without the fallback interval.");
 
 const synchronousWide = createFixture({

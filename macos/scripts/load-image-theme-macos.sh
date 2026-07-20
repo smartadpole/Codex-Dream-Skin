@@ -91,8 +91,15 @@ case "$ext" in
     /bin/cp -f "$IMAGE" "$temporary"
     ;;
   *)
-    /usr/bin/sips -s format jpeg -s formatOptions 82 -Z 2400 "$IMAGE" --out "$temporary" >/dev/null \
-      || fail "Could not convert image. Use PNG/JPEG/HEIC/TIFF/WebP."
+    source_width="$(/usr/bin/sips -g pixelWidth "$IMAGE" 2>/dev/null | /usr/bin/awk '/pixelWidth:/ { print $2; exit }')"
+    source_height="$(/usr/bin/sips -g pixelHeight "$IMAGE" 2>/dev/null | /usr/bin/awk '/pixelHeight:/ { print $2; exit }')"
+    if [ "${source_width:-0}" -gt 3840 ] || [ "${source_height:-0}" -gt 3840 ]; then
+      /usr/bin/sips -s format jpeg -s formatOptions 94 -Z 3840 "$IMAGE" --out "$temporary" >/dev/null \
+        || fail "Could not convert image. Use PNG/JPEG/HEIC/TIFF/WebP."
+    else
+      /usr/bin/sips -s format jpeg -s formatOptions 94 "$IMAGE" --out "$temporary" >/dev/null \
+        || fail "Could not convert image. Use PNG/JPEG/HEIC/TIFF/WebP."
+    fi
     [ -s "$temporary" ] || fail "Converted image is empty."
     ;;
 esac

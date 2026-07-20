@@ -7,11 +7,10 @@
   const ART_ATTRS = [
     "data-dream-art-wide", "data-dream-art-safe", "data-dream-task-mode",
     "data-dream-art-safe-area", "data-dream-art-task-mode", "data-dream-art-aspect",
-    "data-dream-art-ready",
+    "data-dream-art-ready", "data-dream-route",
   ];
   const VERSION = __DREAM_SKIN_VERSION_JSON__;
   const STYLE_REVISION = __DREAM_SKIN_STYLE_REVISION_JSON__;
-  const PAYLOAD_REVISION = __DREAM_SKIN_PAYLOAD_REVISION_JSON__;
   const THEME = themeConfig && typeof themeConfig === "object" ? themeConfig : {};
   const ART = THEME.art && typeof THEME.art === "object" ? THEME.art : {};
   const ART_METADATA = THEME.artMetadata && typeof THEME.artMetadata === "object"
@@ -23,6 +22,8 @@
     "--ds-bg-rgb", "--ds-panel-rgb", "--ds-panel-2-rgb", "--ds-accent-rgb",
     "--ds-accent-alt-rgb", "--ds-secondary-rgb", "--ds-highlight-rgb",
     "--ds-text-rgb", "--ds-muted-rgb", "--ds-line-rgb",
+    "--ds-link-rgb", "--ds-link", "--ds-link-hover",
+    "--ds-current-thread-rgb", "--ds-current-thread-ink",
     "--dream-art-focus-x", "--dream-art-focus-y", "--dream-art-position",
     "--dream-skin-focus-x", "--dream-skin-focus-y", "--dream-skin-art-position",
     "--dream-skin-name", "--dream-skin-tagline", "--dream-skin-project-prefix",
@@ -71,6 +72,12 @@
   if (previous?.scheduler?.timeout) clearTimeout(previous.scheduler.timeout);
   if (previous?.scheduler?.frame != null && typeof cancelAnimationFrame === "function") {
     cancelAnimationFrame(previous.scheduler.frame);
+  }
+  if (previous?.scrollButtonFrame != null && typeof cancelAnimationFrame === "function") {
+    cancelAnimationFrame(previous.scrollButtonFrame);
+  }
+  if (previous?.scrollButtonHandler && previous?.scrollContainer) {
+    previous.scrollContainer.removeEventListener("scroll", previous.scrollButtonHandler);
   }
   if (previous?.analysisTimer) clearTimeout(previous.analysisTimer);
   if (previous?.resizeHandler) window.removeEventListener("resize", previous.resizeHandler);
@@ -235,8 +242,8 @@
     if (!root.classList.contains("codex-dream-skin")) {
       const samples = [
         body,
-        document.querySelector("main.main-surface"),
-        document.querySelector("aside.app-shell-left-panel"),
+        document.querySelector(".main-surface"),
+        document.querySelector(".app-shell-left-panel"),
       ].filter(Boolean);
       let votesLight = 0;
       let votesDark = 0;
@@ -526,7 +533,162 @@
 
   let chromeParts = null;
   let observedShellMain = null;
+  let observedScrollContainer = null;
+  let observedSidebarPanel = null;
+  let scrollButtonFrame = null;
+  let currentSidebarItem = document.querySelector?.(".app-shell-left-panel .dream-skin-current-thread") || null;
+  let currentSidebarProject = document.querySelector?.(".app-shell-left-panel .dream-skin-current-project") || null;
+  let currentSidebarSyncPending = false;
   let resizeObserver = null;
+
+  const findLastConversationNode = () => {
+    const candidates = [...document.querySelectorAll('[data-message-author-role], article')]
+      .filter((node) => {
+        try {
+          const box = node.getBoundingClientRect();
+          return box.width > 0 && box.height > 0;
+        } catch {
+          return false;
+        }
+      });
+    return candidates.at(-1) || null;
+  };
+
+  const cleanText = (value) => String(value || "").replace(/\s+/g, " ").trim();
+
+  const currentTaskTitle = () => {
+    const header = document.querySelector(".main-surface > header.app-header-tint") ||
+      document.querySelector(".main-surface > header") ||
+      document.querySelector("header");
+    if (!header) return "";
+    const candidates = [...header.querySelectorAll('[class*="truncate"], [class*="text-md"], [class*="text-base"]')]
+      .map((node) => cleanText(node.textContent))
+      .filter((text) => text && text !== "Open in" && text !== "Codex" && text.length >= 2);
+    return candidates.find((text) => !text.includes("Open in")) || "";
+  };
+
+  const setCurrentSidebarItem = (nextCurrent) => {
+    if (currentSidebarItem && (!currentSidebarItem.isConnected || currentSidebarItem !== nextCurrent)) {
+      currentSidebarItem.classList.remove("dream-skin-current-thread");
+    } else if (!currentSidebarItem) {
+      document.querySelector(".app-shell-left-panel .dream-skin-current-thread")
+        ?.classList.remove("dream-skin-current-thread");
+    }
+    if (nextCurrent && !nextCurrent.classList.contains("dream-skin-current-thread")) {
+      nextCurrent.classList.add("dream-skin-current-thread");
+    }
+    currentSidebarItem = nextCurrent || null;
+
+    const nextProject = nextCurrent?.parentElement?.closest('.app-shell-left-panel [role="listitem"][aria-label]') || null;
+    if (currentSidebarProject && (!currentSidebarProject.isConnected || currentSidebarProject !== nextProject)) {
+      currentSidebarProject.classList.remove("dream-skin-current-project");
+    } else if (!currentSidebarProject) {
+      document.querySelector(".app-shell-left-panel .dream-skin-current-project")
+        ?.classList.remove("dream-skin-current-project");
+    }
+    if (nextProject && !nextProject.classList.contains("dream-skin-current-project")) {
+      nextProject.classList.add("dream-skin-current-project");
+    }
+    currentSidebarProject = nextProject;
+  };
+
+  const sidebarThreadItemFromEvent = (event) => {
+    const item = event.target?.closest?.('.app-shell-left-panel [role="list"] > [role="listitem"]');
+    if (!item || item.hasAttribute("aria-label")) return null;
+    const text = cleanText(item.textContent);
+    if (!text || /^show (more|less)$/i.test(text) || text === "No chats") return null;
+    return item;
+  };
+
+  const syncCurrentSidebarThread = () => {
+    const title = currentTaskTitle();
+    const items = [...document.querySelectorAll('.app-shell-left-panel [role="list"] > [role="listitem"]')];
+    let nextCurrent = null;
+    if (title) {
+      nextCurrent = items.find((item) => cleanText(item.textContent) === title) || null;
+    } else {
+      nextCurrent = items.find((item) => {
+        const text = cleanText(item.textContent);
+        if (!text || /^show (more|less)$/i.test(text) || text === "No chats") return false;
+        if (!item.querySelector('[class~="bg-token-list-hover-background"]')) return false;
+        return true;
+      }) || document.querySelector(".app-shell-left-panel .dream-skin-current-thread");
+    }
+    if (nextCurrent) setCurrentSidebarItem(nextCurrent);
+  };
+
+  const scheduleCurrentSidebarThreadSync = () => {
+    currentSidebarSyncPending = true;
+    const state = window[STATE_KEY];
+    if (state?.installToken === installToken) state.currentSidebarSyncPending = true;
+    if (typeof scheduleEnsure === "function") scheduleEnsure({ route: true });
+  };
+
+  const attachSidebarCurrentSync = () => {
+    const sidebar = document.querySelector(".app-shell-left-panel");
+    const state = window[STATE_KEY];
+    if (sidebar === observedSidebarPanel) return;
+    if (observedSidebarPanel && state?.sidebarPointerHandler) {
+      observedSidebarPanel.removeEventListener("pointerdown", state.sidebarPointerHandler);
+    }
+    observedSidebarPanel = sidebar;
+    if (sidebar && state?.sidebarPointerHandler) {
+      sidebar.addEventListener("pointerdown", state.sidebarPointerHandler, { passive: true });
+    }
+    if (state) state.sidebarPanel = sidebar;
+  };
+
+  const syncScrollBottomButton = () => {
+    const button = document.querySelector('button[aria-label="Scroll to bottom"]');
+    if (!button) return;
+    const scroller = document.querySelector(".thread-scroll-container");
+    const lastNode = findLastConversationNode();
+    let shouldHide = false;
+    if (scroller && lastNode) {
+      try {
+        const scrollBox = scroller.getBoundingClientRect();
+        const lastBox = lastNode.getBoundingClientRect();
+        const visibleBottom = Math.min(scrollBox.bottom, window.innerHeight || scrollBox.bottom) - 24;
+        shouldHide = lastBox.bottom <= visibleBottom && lastBox.bottom >= scrollBox.top - 8;
+      } catch {}
+    }
+    if (!shouldHide && scroller) {
+      const bottomDelta = Math.abs(scroller.scrollHeight - scroller.clientHeight - scroller.scrollTop);
+      shouldHide = bottomDelta <= 48;
+    }
+    button.classList.toggle("dream-skin-scroll-bottom-hidden", shouldHide);
+  };
+
+  const scheduleScrollBottomSync = () => {
+    if (scrollButtonFrame != null || typeof requestAnimationFrame !== "function") {
+      if (scrollButtonFrame == null) syncScrollBottomButton();
+      return;
+    }
+    scrollButtonFrame = requestAnimationFrame(() => {
+      scrollButtonFrame = null;
+      const state = window[STATE_KEY];
+      if (state?.installToken === installToken) state.scrollButtonFrame = null;
+      syncScrollBottomButton();
+    });
+    const state = window[STATE_KEY];
+    if (state?.installToken === installToken) state.scrollButtonFrame = scrollButtonFrame;
+  };
+
+  const attachScrollBottomSync = () => {
+    const scroller = document.querySelector(".thread-scroll-container");
+    const state = window[STATE_KEY];
+    if (scroller !== observedScrollContainer) {
+      if (observedScrollContainer && state?.scrollButtonHandler) {
+        observedScrollContainer.removeEventListener("scroll", state.scrollButtonHandler);
+      }
+      observedScrollContainer = scroller;
+      if (scroller && state?.scrollButtonHandler) {
+        scroller.addEventListener("scroll", state.scrollButtonHandler, { passive: true });
+      }
+      if (state) state.scrollContainer = scroller;
+    }
+    scheduleScrollBottomSync();
+  };
 
   const ensureStyle = (root) => {
     let style = document.getElementById(STYLE_ID);
@@ -561,7 +723,7 @@
     const root = document.documentElement;
     if (!root) return;
     shell ||= root.getAttribute(SHELL_ATTR) || resolvedShell();
-    const shellMain = document.querySelector("main.main-surface") || document.querySelector("main");
+    const shellMain = document.querySelector(".main-surface") || document.querySelector("main");
     const homeIndicator = document.querySelector('[data-testid="home-icon"]');
     const home = homeIndicator?.closest('[role="main"]') ||
       [...document.querySelectorAll('[role="main"]')].find((candidate) =>
@@ -587,6 +749,7 @@
       layout = true;
     }
     shellMain.classList.toggle("dream-skin-home-shell", Boolean(home));
+    setAttribute(root, "data-dream-route", home ? "home" : "task");
     let chrome = document.getElementById(CHROME_ID);
     let created = false;
     if (!chrome || chrome.parentElement !== document.body) {
@@ -633,6 +796,14 @@
       chrome.dataset.dreamShell = shell;
       metrics.attributeWrites += 1;
     }
+    if (currentSidebarSyncPending) {
+      currentSidebarSyncPending = false;
+      const state = window[STATE_KEY];
+      if (state?.installToken === installToken) state.currentSidebarSyncPending = false;
+      syncCurrentSidebarThread();
+    }
+    attachSidebarCurrentSync();
+    attachScrollBottomSync();
   };
 
   const ensure = ({ root: rootPass = true, route = true, layout = true } = {}) => {
@@ -666,6 +837,21 @@
     if (state?.scheduler?.frame != null && typeof cancelAnimationFrame === "function") {
       cancelAnimationFrame(state.scheduler.frame);
     }
+    if (state?.scrollButtonFrame != null && typeof cancelAnimationFrame === "function") {
+      cancelAnimationFrame(state.scrollButtonFrame);
+    }
+    document.querySelectorAll(".dream-skin-scroll-bottom-hidden")
+      .forEach((node) => node.classList.remove("dream-skin-scroll-bottom-hidden"));
+    document.querySelectorAll(".dream-skin-current-thread")
+      .forEach((node) => node.classList.remove("dream-skin-current-thread"));
+    document.querySelectorAll(".dream-skin-current-project")
+      .forEach((node) => node.classList.remove("dream-skin-current-project"));
+    if (state?.scrollButtonHandler && state?.scrollContainer) {
+      state.scrollContainer.removeEventListener("scroll", state.scrollButtonHandler);
+    }
+    if (state?.sidebarPointerHandler && state?.sidebarPanel) {
+      state.sidebarPanel.removeEventListener("pointerdown", state.sidebarPointerHandler);
+    }
     if (analysisTimer) clearTimeout(analysisTimer);
     if (state?.resizeHandler) window.removeEventListener("resize", state.resizeHandler);
     if (state?.mediaHandler && state?.mediaQuery) {
@@ -694,12 +880,20 @@
     scheduler.root ||= root;
     scheduler.route ||= route;
     scheduler.layout ||= layout;
+    if (route) {
+      currentSidebarSyncPending = true;
+      const state = window[STATE_KEY];
+      if (state?.installToken === installToken) state.currentSidebarSyncPending = true;
+    }
     if (scheduler.timeout || scheduler.frame !== null) return;
-    if (typeof requestAnimationFrame === "function") {
-      scheduler.frame = requestAnimationFrame(flushScheduledEnsure);
-      scheduler.timeout = setTimeout(flushScheduledEnsure, 96);
-    } else {
-      scheduler.timeout = setTimeout(flushScheduledEnsure, 64);
+    const delay = layout ? 160 : 240;
+    scheduler.timeout = setTimeout(flushScheduledEnsure, delay);
+  };
+  const scrollButtonHandler = () => scheduleScrollBottomSync();
+  const sidebarPointerHandler = (event) => {
+    const item = sidebarThreadItemFromEvent(event);
+    if (item) {
+      setCurrentSidebarItem(item);
     }
   };
   const observer = new MutationObserver(() => scheduleEnsure({ route: true }));
@@ -732,12 +926,17 @@
     mediaHandler,
     artUrl,
     installToken,
+    scrollButtonHandler,
+    scrollContainer: null,
+    scrollButtonFrame,
+    currentSidebarSyncPending,
+    sidebarPointerHandler,
+    sidebarPanel: null,
     analysis: artAnalysis,
     artMetadata: ART_METADATA,
     metrics,
     version: VERSION,
     themeId: THEME.id || "custom",
-    revision: PAYLOAD_REVISION,
     detectShellMode,
   };
   const firstEnsureStartedAt = now();
@@ -759,7 +958,7 @@
       attributeFilter: ["class", "data-theme", "data-appearance", "data-color-mode", "style"],
     });
   }
-  const timer = setInterval(() => ensure(), 4000);
+  const timer = setInterval(() => ensure(), 15000);
   window[STATE_KEY].timer = timer;
   window.addEventListener("resize", resizeHandler, { passive: true });
   if (mediaHandler && mediaQuery) {
@@ -782,7 +981,6 @@
     installed: true,
     version: VERSION,
     themeId: THEME.id || "custom",
-    revision: PAYLOAD_REVISION,
     shell: resolvedShell(),
     analysis: artAnalysis,
   };
