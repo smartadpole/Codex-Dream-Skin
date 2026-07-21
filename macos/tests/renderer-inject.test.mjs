@@ -99,8 +99,8 @@ assert.doesNotMatch(
 );
 assert.match(
   css,
-  /data-dream-art-wide="true"\]\s+\.composer-surface-chrome\s*\{[\s\S]{0,500}backdrop-filter:\s*var\(--ds-readable-filter\) !important;/,
-  "Wide artwork should use one uniform cinematic glass composer surface.",
+  /data-dream-art-wide="true"\]\s+\.composer-surface-chrome\s*\{[\s\S]{0,180}border:\s*1px solid rgb\(var\(--ds-neon-rgb\) \/ \.32\) !important;[\s\S]{0,420}backdrop-filter:\s*var\(--ds-readable-filter\) !important;/,
+  "Wide artwork should use one uniform, readable cinematic glass composer surface.",
 );
 assert.match(
   css,
@@ -265,8 +265,33 @@ assert.match(
 );
 assert.match(
   css,
-  /\.composer-surface-chrome p\.placeholder::after\s*\{[\s\S]{0,120}color:\s*rgb\(var\(--ds-muted-rgb\) \/ \.82\) !important;[\s\S]{0,80}opacity:\s*1 !important;/,
+  /\.composer-surface-chrome p\.placeholder::after\s*\{[\s\S]{0,120}color:\s*rgb\(var\(--ds-text-rgb\) \/ \.74\) !important;[\s\S]{0,80}opacity:\s*1 !important;/,
   "Composer placeholder text must not inherit a stale native color with double opacity.",
+);
+assert.match(
+  css,
+  /\.thread-scroll-container\s*\{[\s\S]{0,120}--thread-scroll-padding-bottom:\s*220px !important;/,
+  "Task routes must reserve bottom scroll padding so the composer does not cover the last response.",
+);
+assert.match(
+  css,
+  /data-dream-art-wide="true"\]\[data-dream-route="task"\][\s\S]{0,120}\.thread-scroll-container\s*\{[\s\S]{0,80}scroll-padding-bottom:\s*220px !important;/,
+  "The scroll container must expose a computed bottom scroll padding, not just a CSS variable.",
+);
+assert.match(
+  css,
+  /> div > \[class\*="pb-8"\]\s*\{[\s\S]{0,80}padding-bottom:\s*220px !important;/,
+  "The thread content column must keep a real bottom spacer behind the sticky composer.",
+);
+assert.match(
+  css,
+  /data-dream-art-wide="true"\]\[data-dream-route="task"\][\s\S]{0,140}\.composer-surface-chrome\s*\{[\s\S]{0,160}border:\s*1px solid rgb\(var\(--ds-neon-rgb\) \/ \.34\) !important;[\s\S]{0,260}background-image:\s*var\(--ds-glass-sheen\), var\(--ds-composer-gradient,/,
+  "Task composer final override must keep the input surface readable above complex artwork.",
+);
+assert.match(
+  css,
+  /\.thread-scroll-container \.composer-surface-chrome\[class\*="bg-token-input-background"\]\s*\{[\s\S]{0,260}rgb\(var\(--ds-panel-rgb\) \/ \.84\),[\s\S]{0,120}rgb\(var\(--ds-panel-2-rgb\) \/ \.72\)/,
+  "Task composer must include a hard readable gradient when native input tokens win over variables.",
 );
 assert.match(
   css,
@@ -362,6 +387,21 @@ assert.match(
   css,
   /\[class\*="bg-token-main-surface-secondary"\][\s\S]{0,700}background-image:\s*var\(--ds-glass-sheen\), var\(--ds-readable-gradient\) !important;/,
   "Edited-file and attachment cards should inherit the dark glass surface instead of pale native slabs.",
+);
+assert.match(
+  css,
+  /\[class\*="bg-token-main-surface-primary"\],[\s\S]{0,180}\[class\*="bg-token-input-background"\]\):has\(button\)[\s\S]{0,260}background-image:\s*var\(--ds-glass-sheen\), var\(--ds-readable-deep-gradient, var\(--ds-readable-gradient\)\) !important;/,
+  "Attachment and input-adjacent cards should use a deeper readable glass surface.",
+);
+assert.match(
+  css,
+  /text-token-conversation-body[\s\S]{0,220}text-token-input-placeholder-foreground[\s\S]{0,260}-webkit-text-fill-color:\s*rgb\(var\(--ds-text-rgb\) \/ \.88\) !important;/,
+  "Activity, command, and muted conversation tokens must stay readable on image backgrounds.",
+);
+assert.match(
+  css,
+  /\.vertical-scroll-fade-mask\s*\{[\s\S]{0,260}background-image:\s*linear-gradient\(90deg,[\s\S]{0,260}color:\s*rgb\(var\(--ds-text-rgb\) \/ \.88\) !important;/,
+  "Running command summaries should render on a visible command surface.",
 );
 assert.match(
   css,

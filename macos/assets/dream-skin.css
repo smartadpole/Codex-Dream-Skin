@@ -214,6 +214,10 @@ html.codex-dream-skin[data-dream-art-wide="true"] {
     rgb(var(--ds-panel-rgb) / .62),
     rgb(var(--ds-panel-2-rgb) / .50) 72%,
     rgb(var(--ds-neon-rgb) / .10)) !important;
+  --ds-readable-deep-gradient: linear-gradient(135deg,
+    rgb(var(--ds-panel-rgb) / .82),
+    rgb(var(--ds-panel-2-rgb) / .70) 72%,
+    rgb(var(--ds-neon-rgb) / .14)) !important;
   --ds-message-gradient: linear-gradient(135deg,
     rgb(var(--ds-panel-rgb) / .42),
     rgb(var(--ds-panel-2-rgb) / .27) 72%,
@@ -223,9 +227,9 @@ html.codex-dream-skin[data-dream-art-wide="true"] {
     0 10px 24px rgb(0 0 0 / .22),
     0 0 14px rgb(var(--ds-neon-rgb) / .06) !important;
   --ds-composer-gradient: linear-gradient(135deg,
-    rgb(var(--ds-panel-rgb) / .66),
-    rgb(var(--ds-panel-2-rgb) / .54) 72%,
-    rgb(var(--ds-neon-rgb) / .12)) !important;
+    rgb(var(--ds-panel-rgb) / .84),
+    rgb(var(--ds-panel-2-rgb) / .72) 72%,
+    rgb(var(--ds-neon-rgb) / .16)) !important;
   --ds-readable-border: rgb(var(--ds-neon-rgb) / .30) !important;
   --ds-readable-shadow:
     0 20px 52px rgb(0 0 0 / .38),
@@ -1193,6 +1197,46 @@ html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  :is(
+    [class*="text-token-conversation-body"],
+    [class*="text-token-conversation-summary"],
+    [class*="text-token-description-foreground"],
+    [class*="text-token-text-secondary"],
+    [class*="text-token-text-tertiary"],
+    [class*="text-token-input-placeholder-foreground"]
+  ) {
+  color: rgb(var(--ds-text-rgb) / .88) !important;
+  -webkit-text-fill-color: rgb(var(--ds-text-rgb) / .88) !important;
+  text-shadow: 0 1px 2px rgb(var(--ds-bg-rgb) / .72) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  :is(
+    [class*="group-hover/activity-header"],
+    [class*="group-hover/activity-header"] *,
+    [class*="text-token-conversation-summary-leading"],
+    [class*="text-token-conversation-summary-trailing"]
+  ) {
+  color: rgb(var(--ds-text-rgb) / .82) !important;
+  -webkit-text-fill-color: rgb(var(--ds-text-rgb) / .82) !important;
+  text-shadow: 0 1px 2px rgb(var(--ds-bg-rgb) / .76) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  .vertical-scroll-fade-mask {
+  border: 1px solid rgb(var(--ds-neon-rgb) / .18) !important;
+  border-radius: 10px !important;
+  background-image: linear-gradient(90deg,
+    rgb(var(--ds-panel-rgb) / .50),
+    rgb(var(--ds-panel-2-rgb) / .34) 78%,
+    rgb(var(--ds-neon-rgb) / .08)) !important;
+  color: rgb(var(--ds-text-rgb) / .88) !important;
+  box-shadow:
+    inset 0 1px rgb(var(--ds-text-rgb) / .06),
+    0 6px 16px rgb(var(--ds-bg-rgb) / .16) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
   [class~="relative"][class~="flex"][class~="max-h-full"][class~="min-h-0"][class~="flex-col"][class~="overflow-hidden"][class*="bg-token-dropdown-background"] {
   border: 1px solid var(--ds-readable-border) !important;
   border-radius: 18px !important;
@@ -1283,6 +1327,27 @@ html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
 html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
   [class*="_markdown"] :is(td, th) {
   border-color: rgb(var(--ds-neon-rgb) / .16) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  :is([role="menu"], [role="dialog"], [data-radix-popper-content-wrapper] > *) {
+  z-index: 70 !important;
+  border: 1px solid rgb(var(--ds-neon-rgb) / .30) !important;
+  background-image: var(--ds-glass-sheen), var(--ds-readable-deep-gradient, var(--ds-readable-gradient)) !important;
+  color: var(--ds-text) !important;
+  box-shadow:
+    0 14px 30px rgb(0 0 0 / .36),
+    0 0 0 1px rgb(var(--ds-neon-rgb) / .10) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  :is([role="menu"], [role="dialog"], [data-radix-popper-content-wrapper] > *)
+  :is(span, div, p, button, svg) {
+  color: var(--ds-text) !important;
+  -webkit-text-fill-color: var(--ds-text) !important;
+  text-shadow: 0 1px 2px rgb(var(--ds-bg-rgb) / .70) !important;
 }
 
 html.codex-dream-skin [class*="summary-panel-item"] {
@@ -1807,6 +1872,25 @@ html.codex-dream-skin .composer-surface-chrome {
   backdrop-filter: var(--ds-readable-filter) !important;
 }
 
+html.codex-dream-skin[data-dream-route="task"] .thread-scroll-container {
+  --thread-scroll-padding-bottom: 220px !important;
+}
+
+html.codex-dream-skin[data-dream-route="task"] .thread-scroll-container
+  > div > [class*="pb-8"] {
+  padding-bottom: 220px !important;
+}
+
+html.codex-dream-skin[data-dream-route="task"] .thread-scroll-container
+  > div > .sticky.bottom-0 {
+  z-index: 32 !important;
+  padding-top: 22px !important;
+  background-image: linear-gradient(180deg,
+    rgb(var(--ds-bg-rgb) / 0),
+    rgb(var(--ds-bg-rgb) / .26) 28%,
+    rgb(var(--ds-bg-rgb) / .58) 100%) !important;
+}
+
 html.codex-dream-skin .composer-surface-chrome::before { content: none !important; }
 
 html.codex-dream-skin .composer-surface-chrome:focus-within {
@@ -1820,6 +1904,15 @@ html.codex-dream-skin .composer-surface-chrome
   :is(.ProseMirror, [contenteditable="true"], textarea, input) {
   caret-color: rgb(var(--ds-caret-rgb, var(--ds-neon-rgb)) / 1) !important;
   color: var(--ds-text) !important;
+  -webkit-text-fill-color: var(--ds-text) !important;
+  text-shadow: 0 1px 2px rgb(var(--ds-bg-rgb) / .72) !important;
+}
+
+html.codex-dream-skin .composer-surface-chrome
+  :is([class*="text-token-foreground"], [class*="text-token-text-secondary"], [class*="text-token-text-tertiary"], [class*="text-token-description-foreground"], [class*="text-token-input-placeholder-foreground"]) {
+  color: rgb(var(--ds-text-rgb) / .90) !important;
+  -webkit-text-fill-color: rgb(var(--ds-text-rgb) / .90) !important;
+  text-shadow: 0 1px 2px rgb(var(--ds-bg-rgb) / .72) !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"] .composer-surface-chrome
@@ -1909,11 +2002,12 @@ html.codex-dream-skin[data-dream-art-wide="true"] .main-surface.dream-skin-home-
 
 html.codex-dream-skin[data-dream-art-wide="true"] .composer-surface-chrome {
   background: var(--ds-composer-gradient, var(--ds-readable-gradient)) !important;
-  border: 0 !important;
+  border: 1px solid rgb(var(--ds-neon-rgb) / .32) !important;
   box-shadow:
-    0 10px 30px rgb(var(--ds-bg-rgb) / .20),
+    0 14px 34px rgb(var(--ds-bg-rgb) / .34),
     inset 0 0 0 1px var(--ds-immersive-line),
-    inset 0 1px rgb(var(--ds-text-rgb) / .12) !important;
+    inset 0 1px rgb(var(--ds-text-rgb) / .16),
+    0 0 18px rgb(var(--ds-neon-rgb) / .12) !important;
   backdrop-filter: var(--ds-readable-filter) !important;
 }
 
@@ -2022,8 +2116,11 @@ html.codex-dream-skin .composer-surface-chrome button:not([class~="bg-token-fore
 }
 
 html.codex-dream-skin .composer-surface-chrome p.placeholder::after {
-  color: rgb(var(--ds-muted-rgb) / .82) !important;
+  color: rgb(var(--ds-text-rgb) / .74) !important;
   opacity: 1 !important;
+  text-shadow:
+    0 1px 2px rgb(var(--ds-bg-rgb) / .82),
+    0 0 8px rgb(var(--ds-bg-rgb) / .42) !important;
 }
 
 /* Search routes ship an opaque sticky band and input surface. Keep the
@@ -2126,6 +2223,24 @@ html.codex-dream-skin .ProseMirror {
   caret-color: rgb(var(--ds-caret-rgb, var(--ds-neon-rgb)) / 1) !important;
 }
 
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  :is([class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"], [class*="bg-token-input-background"]):has(button) {
+  border-color: rgb(var(--ds-neon-rgb) / .30) !important;
+  background-image: var(--ds-glass-sheen), var(--ds-readable-deep-gradient, var(--ds-readable-gradient)) !important;
+  color: var(--ds-text) !important;
+  box-shadow:
+    0 12px 26px rgb(var(--ds-bg-rgb) / .30),
+    inset 0 0 0 1px rgb(var(--ds-neon-rgb) / .10) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  :is([class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"], [class*="bg-token-input-background"]):has(button)
+  :is(span, div, p, button, svg, [class*="text-token-"]) {
+  color: var(--ds-text) !important;
+  -webkit-text-fill-color: var(--ds-text) !important;
+  text-shadow: 0 1px 2px rgb(var(--ds-bg-rgb) / .72) !important;
+}
+
 html.codex-dream-skin[data-dream-art-wide="true"] body .app-shell-left-panel
   div[role="listitem"]
   > button[class~="no-drag"][class*="!text-token-input-placeholder-foreground"]:not([class~="invisible"]) {
@@ -2221,6 +2336,41 @@ html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"]
     -12px 0 28px rgb(var(--ds-bg-rgb) / .10) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"]
+  .thread-scroll-container {
+  scroll-padding-bottom: 220px !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"]
+  .composer-surface-chrome {
+  border: 1px solid rgb(var(--ds-neon-rgb) / .34) !important;
+  background: var(--ds-composer-gradient, var(--ds-readable-deep-gradient, var(--ds-readable-gradient))) !important;
+  background-image: var(--ds-glass-sheen), var(--ds-composer-gradient, var(--ds-readable-deep-gradient, var(--ds-readable-gradient))) !important;
+  box-shadow:
+    0 16px 36px rgb(var(--ds-bg-rgb) / .38),
+    inset 0 0 0 1px rgb(var(--ds-neon-rgb) / .14),
+    inset 0 1px rgb(var(--ds-text-rgb) / .18),
+    0 0 18px rgb(var(--ds-neon-rgb) / .12) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"]
+  body .main-surface:not(.dream-skin-home-shell)
+  .thread-scroll-container .composer-surface-chrome[class*="bg-token-input-background"] {
+  border: 1px solid rgb(var(--ds-neon-rgb) / .34) !important;
+  background-color: transparent !important;
+  background-image:
+    var(--ds-glass-sheen),
+    linear-gradient(135deg,
+      rgb(var(--ds-panel-rgb) / .84),
+      rgb(var(--ds-panel-2-rgb) / .72) 72%,
+      rgb(var(--ds-neon-rgb) / .16)) !important;
+  box-shadow:
+    0 16px 36px rgb(var(--ds-bg-rgb) / .38),
+    inset 0 0 0 1px rgb(var(--ds-neon-rgb) / .14),
+    inset 0 1px rgb(var(--ds-text-rgb) / .18),
+    0 0 18px rgb(var(--ds-neon-rgb) / .12) !important;
 }
 
 html.codex-dream-skin button[class~="bg-token-foreground"] {
