@@ -142,20 +142,11 @@ assert.match(
   /data-dream-art-wide="true"\] \.main-surface:not\(\.dream-skin-home-shell\)[\s\S]{0,220}::selection,[\s\S]{0,360}-webkit-text-fill-color:\s*rgb\(var\(--ds-selection-text-rgb\) \/ 1\) !important;[\s\S]{0,180}text-shadow:\s*none !important;/,
   "Wide task markdown, code, and composer selections must render as true inverse text.",
 );
-assert.match(
-  css,
-  /\.dream-skin-pointer-focus\s*\{[\s\S]{0,900}radial-gradient\(circle 170px at var\(--ds-pointer-x, 50vw\) var\(--ds-pointer-y, 50vh\)[\s\S]{0,900}will-change:\s*background, opacity;/,
-  "Pointer focus should be a single fixed radial light field driven by CSS variables.",
-);
-assert.match(
-  css,
-  /data-dream-pointer="active"\] \.dream-skin-pointer-focus\s*\{[\s\S]{0,80}opacity:\s*1;/,
-  "Pointer focus must remain idle until the mouse enters the window.",
-);
-assert.match(
-  css,
-  /data-dream-route="task"\] \.dream-skin-pointer-focus\s*\{[\s\S]{0,500}radial-gradient\(circle 150px at var\(--ds-pointer-x, 50vw\) var\(--ds-pointer-y, 50vh\)/,
-  "Task routes should use the restrained pointer focus profile.",
+assert.ok(
+  !css.includes(".dream-skin-pointer-focus") &&
+    !css.includes("--ds-pointer-x") &&
+    !css.includes("data-dream-pointer"),
+  "Pointer light field must stay removed because cursor-tracked gradients cause pointer lag.",
 );
 assert.match(
   css,
@@ -173,6 +164,11 @@ assert.match(
   template,
   /STALE_PANEL_FOCUS_CLASS[\s\S]{0,260}data-dream-panel-focus[\s\S]{0,260}--ds-panel-focus-x/,
   "Hot updates must remove stale moving panel focus DOM, attributes, and variables from the bad overlay build.",
+);
+assert.match(
+  template,
+  /STALE_POINTER_FOCUS_CLASS[\s\S]{0,260}data-dream-pointer[\s\S]{0,220}--ds-pointer-x/,
+  "Hot updates must remove stale pointer light field DOM, attributes, and variables from the laggy pointer-focus build.",
 );
 const performanceGuardIndex = css.indexOf("/* Performance guard for complex full-window art.");
 const bodyAttachmentGuardIndex = css.indexOf(
@@ -762,14 +758,11 @@ assert.equal(defaultMetrics.layoutReads, 2, "Shell ResizeObserver changes must r
 const defaultChrome = defaults.nodes.get("codex-dream-skin-chrome");
 assert.equal(defaultChrome.style.values.get("left"), "196px");
 assert.equal(defaultChrome.style.values.get("width"), "1084px");
-assert.equal(typeof defaults.windowListeners.get("pointermove"), "function");
-assert.equal(typeof defaults.windowListeners.get("pointerleave"), "function");
-defaults.windowListeners.get("pointermove")({ clientX: 444.4, clientY: 211.6 });
-assert.equal(defaults.rootStyle.values.get("--ds-pointer-x"), "444px");
-assert.equal(defaults.rootStyle.values.get("--ds-pointer-y"), "212px");
-assert.equal(defaults.attributes.get("data-dream-pointer"), "active");
-defaults.windowListeners.get("pointerleave")();
-assert.equal(defaults.attributes.get("data-dream-pointer"), "idle");
+assert.equal(defaults.windowListeners.has("pointermove"), false);
+assert.equal(defaults.windowListeners.has("pointerleave"), false);
+assert.equal(defaults.attributes.has("data-dream-pointer"), false);
+assert.equal(defaults.rootStyle.values.has("--ds-pointer-x"), false);
+assert.equal(defaults.rootStyle.values.has("--ds-pointer-y"), false);
 
 // Auto appearance must continue following the native shell after the skin is
 // already installed. The fixture makes the injected root color-scheme win
@@ -928,14 +921,11 @@ assert.equal(banner.attributes.get("data-dream-task-mode"), "banner");
 assert.equal(explicit.window.__CODEX_DREAM_SKIN_STATE__.cleanup(), true);
 assert.equal(explicit.root.classList.contains("codex-dream-skin"), false);
 assert.equal(explicit.attributes.has("data-dream-shell"), false);
-assert.equal(explicit.attributes.has("data-dream-pointer"), false);
 assert.equal(explicit.attributes.has("data-dream-art-safe-area"), false);
 assert.equal(explicit.attributes.has("data-dream-art-task-mode"), false);
 assert.equal(explicit.rootStyle.values.has("--dream-art-position"), false);
 assert.equal(explicit.nodes.has("codex-dream-skin-style"), false);
 assert.equal(explicit.nodes.has("codex-dream-skin-chrome"), false);
-assert.equal(explicit.windowListeners.has("pointermove"), false);
-assert.equal(explicit.windowListeners.has("pointerleave"), false);
 assert.deepEqual(explicit.revokedUrls, ["blob:fixture-1"]);
 await Promise.resolve();
 await Promise.resolve();
