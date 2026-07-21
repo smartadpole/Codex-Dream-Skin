@@ -72,6 +72,31 @@ assert.match(
   /setAttribute\(root,\s*"data-dream-route",\s*home \? "home" : "task"\);/,
   "Renderer should publish route state so CSS does not need global route :has selectors.",
 );
+assert.ok(
+  template.includes('const cssClassSelector = (className) => `.${globalThis.CSS?.escape?.(className) || className.replace(/\\//g, "\\\\/")}`;'),
+  "Renderer should build slash-bearing class selectors with CSS.escape instead of hand-written querySelector literals.",
+);
+assert.ok(
+  template.includes('candidate.querySelector(cssClassSelector("group/home-suggestions"))') &&
+    template.includes('candidate.querySelector(cssClassSelector("group/project-selector"))'),
+  "Renderer should identify the home route even when the current Codex build omits home suggestion cards.",
+);
+assert.doesNotMatch(
+  template,
+  /querySelector\('\.group\\*\/home-suggestions'\)/,
+  "Renderer must not hand-write group/home-suggestions selector literals.",
+);
+assert.ok(
+  injectorScript.includes("const cssClassSelector = (className) => \\`.\\${CSS.escape(className)}\\`;") &&
+    injectorScript.includes("document.querySelector(cssClassSelector('group/home-suggestions'))") &&
+    injectorScript.includes("document.querySelector(cssClassSelector('group/project-selector'))"),
+  "Injector verification should build slash-bearing class selectors with CSS.escape.",
+);
+assert.doesNotMatch(
+  injectorScript,
+  /querySelector\('\.group\\*\/home-suggestions'\)/,
+  "Injector verification must not hand-write group/home-suggestions selector literals.",
+);
 assert.match(
   css,
   /data-dream-art-wide="true"\]\s+\.composer-surface-chrome\s*\{[\s\S]{0,500}backdrop-filter:\s*var\(--ds-readable-filter\) !important;/,
@@ -155,8 +180,23 @@ assert.doesNotMatch(
 );
 assert.match(
   template,
-  /const sidebarProjectFromEvent = \(event\) => \{[\s\S]{0,360}Start new chat in[\s\S]{0,160}return action \? project : null;/,
+  /const sidebarProjectFromEvent = \(event\) => \{[\s\S]{0,360}Start new chat in[\s\S]{0,160}return project && action \? project : null;/,
   "Starting a new chat from a project should mark the project row, not a stale conversation.",
+);
+assert.match(
+  template,
+  /const isSidebarProjectItem = \(item\) => Boolean\(item\?\.matches\?\.\('\[role="listitem"\]'\)[\s\S]{0,160}item\.querySelector\?\.\('\[class\*="group\/folder-row"\]'\)\);/,
+  "Sidebar project containers must be detected separately from leaf thread rows.",
+);
+assert.match(
+  template,
+  /const isSidebarThreadItem = \(item\) => \{[\s\S]{0,240}if \(isSidebarProjectItem\(item\)\) return false;/,
+  "Current-thread sync must never mark an entire project container as the active thread.",
+);
+assert.match(
+  template,
+  /const sidebarProjectItemForThread = \(threadItem\) => \{[\s\S]{0,360}isSidebarProjectItem\(node\)/,
+  "Leaf thread rows should still resolve their owning project for project-title highlighting.",
 );
 assert.match(
   injectorScript,
@@ -243,6 +283,16 @@ assert.match(
   /\.thread-scroll-container[\s\S]{0,180}scrollbar-color:\s*var\(--ds-scrollbar-thumb\) var\(--ds-scrollbar-track\) !important;/,
   "Thread scroll containers must expose a visible themed scrollbar.",
 );
+assert.doesNotMatch(
+  css,
+  /:is\([^)]*\.app-shell-left-panel \[class\*="overflow-y-auto"\][^)]*\)[\s\S]{0,120}scrollbar-color:\s*var\(--ds-scrollbar-thumb\)/,
+  "Sidebar project lists must not inherit the prominent themed content scrollbar.",
+);
+assert.match(
+  css,
+  /\.app-shell-left-panel \[class\*="overflow-y-auto"\][\s\S]{0,120}scrollbar-width:\s*none !important;/,
+  "Sidebar project lists should hide their scrollbar while preserving native scrolling.",
+);
 assert.match(
   css,
   /button\[aria-label="Show less"\][\s\S]{0,620}div\[class~="py-1"\] > button\[class~="no-drag"\][\s\S]{0,180}opacity:\s*1 !important;/,
@@ -262,6 +312,16 @@ assert.match(
   css,
   /\.app-shell-left-panel[\s\S]{0,180}:is\(button\.no-drag, button\[class~="no-drag"\], \[role="button"\]\[class~="no-drag"\]\):not\(\[class\*="group\/folder-row"\]\)[\s\S]{0,240}background:\s*transparent !important;[\s\S]{0,120}box-shadow:\s*none !important;/,
   "Sidebar no-drag icon buttons should stay quiet until hover or focus.",
+);
+assert.match(
+  css,
+  /\.dream-skin-current-project \[class\*="group\/folder-row"\]\[aria-label\][\s\S]{0,220}border-color:\s*rgb\(var\(--ds-neon-rgb\) \/ \.36\) !important;/,
+  "The current project title should be visible without becoming a warning-style block.",
+);
+assert.doesNotMatch(
+  css,
+  /\.app-shell-left-panel[\s\S]{0,180}:is\(button\.no-drag, button\[class~="no-drag"\], \[role="button"\]\[class~="no-drag"\]\):not\(\[class\*="group\/folder-row"\]\)[\s\S]{0,240}background:\s*rgb\(var\(--ds-panel-rgb\) \/ \.46\) !important;[\s\S]{0,80}color:\s*var\(--ds-accent\) !important;/,
+  "Sidebar no-drag icon buttons must not render as pre-hover highlighted controls.",
 );
 assert.match(
   css,

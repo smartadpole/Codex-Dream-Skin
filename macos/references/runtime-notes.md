@@ -44,15 +44,19 @@
   scoped coverage for native buttons/links, role buttons, and current
   `cursor-interaction` row classes; compact controls should gain a clearer
   border/glow on hover and focus.
+- Sidebar current-state classes are semantic, not just visual. Only a leaf
+  conversation row may receive `dream-skin-current-thread`; the owning project
+  title receives `dream-skin-current-project`. A project container must never be
+  marked as the current thread, because it contains every child conversation.
 - Sidebar section expanders such as `Show more` and `Show less` must remain
   visible over wallpaper. Do not let them inherit only placeholder opacity.
 - Treat `no-drag` buttons inside the main surface as the minimum foreground
   button class for current Codex builds. They need scoped fill, border,
   readable icon color, and hover glow because message actions often have no
   stronger semantic class.
-- Composer text inputs should set an explicit high-contrast caret color, and
-  main/side scroll containers should expose themed scrollbars; both are
-  foreground affordances during active work.
+- Composer text inputs should set an explicit high-contrast caret color. Main
+  content scroll containers should expose themed scrollbars; the sidebar project
+  list should hide its scrollbar chrome while preserving native scrolling.
 - Markdown semantics should survive the readability pass. Links keep an accent
   underline/glow instead of being flattened to body text, and rendered
   screenshots/images keep a framed visible surface. Verification screenshots

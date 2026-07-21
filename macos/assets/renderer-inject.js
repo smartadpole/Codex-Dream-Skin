@@ -555,6 +555,7 @@
   };
 
   const cleanText = (value) => String(value || "").replace(/\s+/g, " ").trim();
+  const cssClassSelector = (className) => `.${globalThis.CSS?.escape?.(className) || className.replace(/\//g, "\\/")}`;
 
   const currentTaskTitle = () => {
     const header = document.querySelector(".main-surface > header.app-header-tint") ||
@@ -567,13 +568,31 @@
     return candidates.find((text) => !text.includes("Open in")) || "";
   };
 
-  const setCurrentSidebarProject = (nextProject) => {
-    if (currentSidebarProject && (!currentSidebarProject.isConnected || currentSidebarProject !== nextProject)) {
-      currentSidebarProject.classList.remove("dream-skin-current-project");
-    } else if (!currentSidebarProject) {
-      document.querySelector(".app-shell-left-panel .dream-skin-current-project")
-        ?.classList.remove("dream-skin-current-project");
+  const isSidebarProjectItem = (item) => Boolean(item?.matches?.('[role="listitem"]') &&
+    item.querySelector?.('[class*="group/folder-row"]'));
+
+  const isSidebarThreadItem = (item) => {
+    if (!item?.matches?.('[role="listitem"]')) return false;
+    if (isSidebarProjectItem(item)) return false;
+    const text = cleanText(item.textContent);
+    if (!text || /^show (more|less)$/i.test(text) || text === "No chats") return false;
+    return true;
+  };
+
+  const sidebarProjectItemForThread = (threadItem) => {
+    let node = threadItem?.parentElement || null;
+    while (node && !node.classList?.contains("app-shell-left-panel")) {
+      if (node !== threadItem && isSidebarProjectItem(node)) return node;
+      node = node.parentElement;
     }
+    return null;
+  };
+
+  const setCurrentSidebarProject = (nextProject) => {
+    document.querySelectorAll(".app-shell-left-panel .dream-skin-current-project")
+      .forEach((node) => {
+        if (node !== nextProject) node.classList.remove("dream-skin-current-project");
+      });
     if (nextProject && !nextProject.classList.contains("dream-skin-current-project")) {
       nextProject.classList.add("dream-skin-current-project");
     }
@@ -581,34 +600,29 @@
   };
 
   const setCurrentSidebarItem = (nextCurrent) => {
-    if (currentSidebarItem && (!currentSidebarItem.isConnected || currentSidebarItem !== nextCurrent)) {
-      currentSidebarItem.classList.remove("dream-skin-current-thread");
-    } else if (!currentSidebarItem) {
-      document.querySelector(".app-shell-left-panel .dream-skin-current-thread")
-        ?.classList.remove("dream-skin-current-thread");
-    }
+    nextCurrent = isSidebarThreadItem(nextCurrent) ? nextCurrent : null;
+    document.querySelectorAll(".app-shell-left-panel .dream-skin-current-thread")
+      .forEach((node) => {
+        if (node !== nextCurrent) node.classList.remove("dream-skin-current-thread");
+      });
     if (nextCurrent && !nextCurrent.classList.contains("dream-skin-current-thread")) {
       nextCurrent.classList.add("dream-skin-current-thread");
     }
     currentSidebarItem = nextCurrent || null;
 
-    const nextProject = nextCurrent?.parentElement?.closest('.app-shell-left-panel [role="listitem"][aria-label]') || null;
-    if (nextCurrent || nextProject) setCurrentSidebarProject(nextProject);
+    if (nextCurrent) setCurrentSidebarProject(sidebarProjectItemForThread(nextCurrent));
   };
 
   const sidebarThreadItemFromEvent = (event) => {
     const item = event.target?.closest?.('.app-shell-left-panel [role="list"] > [role="listitem"]');
-    if (!item || item.hasAttribute("aria-label")) return null;
-    const text = cleanText(item.textContent);
-    if (!text || /^show (more|less)$/i.test(text) || text === "No chats") return null;
-    return item;
+    return isSidebarThreadItem(item) ? item : null;
   };
 
   const sidebarProjectFromEvent = (event) => {
-    const project = event.target?.closest?.('.app-shell-left-panel [role="listitem"][aria-label]');
-    if (!project) return null;
+    const item = event.target?.closest?.('.app-shell-left-panel [role="list"] > [role="listitem"]');
+    const project = isSidebarProjectItem(item) ? item : null;
     const action = event.target?.closest?.('button[aria-label^="Start new chat in"], button[aria-label^="Project actions for"]');
-    return action ? project : null;
+    return project && action ? project : null;
   };
 
   const nodeTouchesRouteState = (node) => {
@@ -618,7 +632,7 @@
       return false;
     }
     return Boolean(element.closest(
-      '.app-shell-left-panel, .main-surface > header, .composer-surface-chrome, [data-testid="home-icon"], [data-feature="game-source"], .group\\/home-suggestions, [class*="_homeUtilityBar_"]',
+      '.app-shell-left-panel, .main-surface > header, .composer-surface-chrome, [data-testid="home-icon"], [data-feature="game-source"], .group\\/home-suggestions, .group\\/project-selector, [class*="_homeUtilityBar_"]',
     ));
   };
 
@@ -635,7 +649,8 @@
 
   const syncCurrentSidebarThread = () => {
     const title = currentTaskTitle();
-    const items = [...document.querySelectorAll('.app-shell-left-panel [role="list"] > [role="listitem"]')];
+    const items = [...document.querySelectorAll('.app-shell-left-panel [role="list"] > [role="listitem"]')]
+      .filter(isSidebarThreadItem);
     let nextCurrent = null;
     if (title) {
       nextCurrent = items.find((item) => cleanText(item.textContent) === title) || null;
@@ -648,7 +663,7 @@
       if (currentSidebarProject?.isConnected) setCurrentSidebarProject(currentSidebarProject);
       return;
     }
-    if (nextCurrent) setCurrentSidebarItem(nextCurrent);
+    setCurrentSidebarItem(nextCurrent);
   };
 
   const scheduleCurrentSidebarThreadSync = () => {
@@ -761,8 +776,9 @@
     const homeIndicator = document.querySelector('[data-testid="home-icon"]');
     const home = homeIndicator?.closest('[role="main"]') ||
       [...document.querySelectorAll('[role="main"]')].find((candidate) =>
-        candidate.querySelector('[data-feature="game-source"]') &&
-        candidate.querySelector('.group\\\\/home-suggestions')) || null;
+        candidate.querySelector('[data-feature="game-source"]') ||
+        candidate.querySelector(cssClassSelector("group/home-suggestions")) ||
+        candidate.querySelector(cssClassSelector("group/project-selector"))) || null;
     for (const candidate of document.querySelectorAll('[role="main"].dream-skin-home')) {
       if (candidate !== home) candidate.classList.remove("dream-skin-home");
     }

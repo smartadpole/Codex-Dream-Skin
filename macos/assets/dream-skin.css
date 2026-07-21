@@ -486,8 +486,9 @@ html.codex-dream-skin[data-dream-art-wide="true"] .app-shell-left-panel
 
 html.codex-dream-skin[data-dream-art-wide="true"] .app-shell-left-panel
   :is(button.no-drag, button[class~="no-drag"], [role="button"][class~="no-drag"]):not([class*="group/folder-row"])
-  svg {
-  color: currentColor !important;
+  :is(svg, path) {
+  color: var(--ds-accent) !important;
+  stroke: var(--ds-accent) !important;
   opacity: 1 !important;
 }
 
@@ -583,9 +584,10 @@ html.codex-dream-skin .app-shell-left-panel .dream-skin-current-project [class*=
   background-size: 3px 100%, 100% 100%;
   background-position: left center, center;
   box-shadow:
-    inset 0 1px rgb(var(--ds-text-rgb) / .12),
-    0 0 0 1px rgb(var(--ds-neon-rgb) / .08),
-    0 0 14px rgb(var(--ds-neon-rgb) / .12),
+    inset 4px 0 rgb(var(--ds-neon-rgb) / .74),
+    inset 0 1px rgb(var(--ds-text-rgb) / .16),
+    0 0 0 1px rgb(var(--ds-neon-rgb) / .18),
+    0 0 18px rgb(var(--ds-neon-rgb) / .18),
     0 8px 20px rgb(0 0 0 / .18) !important;
 }
 
@@ -616,6 +618,12 @@ html.codex-dream-skin .app-shell-left-panel button[aria-label^="Start new chat i
   box-shadow: none !important;
   color: rgb(var(--ds-muted-rgb) / .94) !important;
   opacity: 1 !important;
+}
+
+html.codex-dream-skin .app-shell-left-panel button[aria-label^="Project actions for"] :is(svg, path),
+html.codex-dream-skin .app-shell-left-panel button[aria-label^="Start new chat in"] :is(svg, path) {
+  color: var(--ds-accent) !important;
+  stroke: var(--ds-accent) !important;
 }
 
 html.codex-dream-skin .app-shell-left-panel button[aria-label^="Project actions for"]:hover,
@@ -1397,25 +1405,25 @@ html.codex-dream-skin [role="main"] {
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
-  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask, .app-shell-left-panel [class*="overflow-y-auto"]) {
+  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask) {
   scrollbar-color: var(--ds-scrollbar-thumb) var(--ds-scrollbar-track) !important;
   scrollbar-width: thin !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
-  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask, .app-shell-left-panel [class*="overflow-y-auto"])::-webkit-scrollbar {
+  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar {
   width: 10px !important;
   height: 10px !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
-  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask, .app-shell-left-panel [class*="overflow-y-auto"])::-webkit-scrollbar-track {
+  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar-track {
   background: var(--ds-scrollbar-track) !important;
   border-radius: 999px !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
-  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask, .app-shell-left-panel [class*="overflow-y-auto"])::-webkit-scrollbar-thumb {
+  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar-thumb {
   min-height: 48px !important;
   border: 2px solid transparent !important;
   border-radius: 999px !important;
@@ -1425,8 +1433,25 @@ html.codex-dream-skin[data-dream-art-wide="true"]
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
-  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask, .app-shell-left-panel [class*="overflow-y-auto"])::-webkit-scrollbar-thumb:hover {
+  :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar-thumb:hover {
   background: rgb(var(--ds-caret-rgb) / .82) !important;
+}
+
+html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"] {
+  scrollbar-color: transparent transparent !important;
+  scrollbar-width: none !important;
+}
+
+html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"]::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+}
+
+html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"]::-webkit-scrollbar-track,
+html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"]::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
 }
 
 html.codex-dream-skin .dream-skin-home {
