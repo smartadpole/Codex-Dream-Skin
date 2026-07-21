@@ -720,6 +720,7 @@ assert.equal(cached.window.__CODEX_DREAM_SKIN_STATE__.metrics.analysisRuns, 0);
 
 const previousWideState = synchronousWide.window.__CODEX_DREAM_SKIN_STATE__;
 const stableStyle = synchronousWide.nodes.get("codex-dream-skin-style");
+stableStyle.disabled = true;
 vm.runInNewContext(synchronousWide.payloadFor({
   id: "switched-wide",
   appearance: "dark",
@@ -735,6 +736,7 @@ vm.runInNewContext(synchronousWide.payloadFor({
   },
 }, ".fixture { color: red; }"), synchronousWide.context);
 assert.equal(synchronousWide.nodes.get("codex-dream-skin-style"), stableStyle);
+assert.equal(stableStyle.disabled, false, "Re-injection must re-enable a previously disabled style tag.");
 assert.equal(stableStyle.textContent, ".fixture { color: red; }");
 assert.equal(stableStyle.dataset.dreamSkinVersion, "test");
 assert.equal(synchronousWide.rootStyle.values.get("--dream-skin-art"), 'url("blob:fixture-2")');

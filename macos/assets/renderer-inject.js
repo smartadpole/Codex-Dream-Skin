@@ -750,6 +750,7 @@
     } else if (style.dataset.dreamSkinStyleRevision !== STYLE_REVISION) {
       style.textContent = cssText;
     }
+    style.disabled = false;
     style.dataset.dreamSkinVersion = VERSION;
     style.dataset.dreamSkinStyleRevision = STYLE_REVISION;
     return style;
