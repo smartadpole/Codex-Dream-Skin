@@ -320,8 +320,18 @@ assert.match(
 );
 assert.doesNotMatch(
   css,
+  /\.dream-skin-current-thread\s+:is\(span,\s*div,\s*p,\s*svg\)[\s\S]{0,180}opacity:\s*1 !important;/,
+  "Current thread styling must not force action-rail wrapper divs visible before hover.",
+);
+assert.doesNotMatch(
+  css,
   /\.app-shell-left-panel[\s\S]{0,180}:is\(button\.no-drag, button\[class~="no-drag"\], \[role="button"\]\[class~="no-drag"\]\):not\(\[class\*="group\/folder-row"\]\)[\s\S]{0,240}background:\s*rgb\(var\(--ds-panel-rgb\) \/ \.46\) !important;[\s\S]{0,80}color:\s*var\(--ds-accent\) !important;/,
   "Sidebar no-drag icon buttons must not render as pre-hover highlighted controls.",
+);
+assert.match(
+  css,
+  /data-dream-route="task"[\s\S]{0,260}:has\(> \[class\*="_markdownContent"\]\):hover\s*\{[\s\S]{0,420}border-color:\s*rgb\(var\(--ds-neon-rgb\) \/ \.42\) !important;[\s\S]{0,420}0 0 22px rgb\(var\(--ds-neon-rgb\) \/ \.14\) !important;/,
+  "Task message blocks should gain a lightweight hover highlight without changing their resting glass surface.",
 );
 assert.match(
   css,

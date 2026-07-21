@@ -686,7 +686,7 @@ html.codex-dream-skin .app-shell-left-panel .dream-skin-current-thread
 }
 
 html.codex-dream-skin .app-shell-left-panel .dream-skin-current-thread
-  :is(span, div, p, svg) {
+  :is(span, p, svg) {
   color: var(--ds-text) !important;
   -webkit-text-fill-color: var(--ds-text) !important;
   font-weight: 820 !important;
@@ -971,6 +971,24 @@ html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-hom
   background-image: var(--ds-glass-sheen), var(--ds-message-gradient) !important;
   box-shadow: var(--ds-message-shadow) !important;
   backdrop-filter: none !important;
+}
+
+html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell) article:hover,
+html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  [class*="bg-token-foreground/5"]:hover,
+html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  .group.flex.min-w-0.flex-col:has(> [class*="_markdownContent"]):hover {
+  border-color: rgb(var(--ds-neon-rgb) / .42) !important;
+  background-image:
+    var(--ds-glass-sheen),
+    linear-gradient(135deg,
+      rgb(var(--ds-panel-rgb) / .54),
+      rgb(var(--ds-panel-2-rgb) / .36) 72%,
+      rgb(var(--ds-neon-rgb) / .14)) !important;
+  box-shadow:
+    var(--ds-message-shadow),
+    0 0 0 1px rgb(var(--ds-neon-rgb) / .16),
+    0 0 22px rgb(var(--ds-neon-rgb) / .14) !important;
 }
 
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
