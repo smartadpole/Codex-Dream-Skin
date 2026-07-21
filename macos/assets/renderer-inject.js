@@ -23,6 +23,7 @@
     "--ds-accent-alt-rgb", "--ds-secondary-rgb", "--ds-highlight-rgb",
     "--ds-text-rgb", "--ds-muted-rgb", "--ds-line-rgb",
     "--ds-link-rgb", "--ds-link", "--ds-link-hover",
+    "--ds-pointer-x", "--ds-pointer-y",
     "--ds-current-thread-rgb", "--ds-current-thread-ink",
     "--dream-art-focus-x", "--dream-art-focus-y", "--dream-art-position",
     "--dream-skin-focus-x", "--dream-skin-focus-y", "--dream-skin-art-position",
@@ -83,6 +84,11 @@
   if (previous?.resizeHandler) window.removeEventListener("resize", previous.resizeHandler);
   if (previous?.mediaHandler && previous?.mediaQuery) {
     try { previous.mediaQuery.removeEventListener("change", previous.mediaHandler); } catch {}
+  }
+  if (previous?.pointerMoveHandler) window.removeEventListener("pointermove", previous.pointerMoveHandler);
+  if (previous?.pointerLeaveHandler) window.removeEventListener("pointerleave", previous.pointerLeaveHandler);
+  if (previous?.pointerFocusFrame != null && typeof cancelAnimationFrame === "function") {
+    cancelAnimationFrame(previous.pointerFocusFrame);
   }
 
   const cssString = (value) => JSON.stringify(String(value ?? ""));
@@ -536,6 +542,8 @@
   let observedScrollContainer = null;
   let observedSidebarPanel = null;
   let scrollButtonFrame = null;
+  let pointerFocusFrame = null;
+  let pendingPointerFocus = null;
   let currentSidebarItem = document.querySelector?.(".app-shell-left-panel .dream-skin-current-thread") || null;
   let currentSidebarProject = document.querySelector?.(".app-shell-left-panel .dream-skin-current-project") || null;
   let currentSidebarSyncPending = false;
@@ -803,12 +811,13 @@
     setAttribute(root, "data-dream-route", home ? "home" : "task");
     let chrome = document.getElementById(CHROME_ID);
     let created = false;
-    if (!chrome || chrome.parentElement !== document.body) {
-      chrome?.remove();
-      chrome = document.createElement("div");
-      chrome.id = CHROME_ID;
+	    if (!chrome || chrome.parentElement !== document.body) {
+	      chrome?.remove();
+	      chrome = document.createElement("div");
+	      chrome.id = CHROME_ID;
       chrome.setAttribute("aria-hidden", "true");
       chrome.innerHTML = `
+        <div class="dream-skin-pointer-focus"></div>
         <div class="dream-skin-brand">
           <span class="dream-skin-portal-mark">◉</span>
           <span><b></b><small></small></span>
@@ -820,8 +829,13 @@
       document.body.appendChild(chrome);
       created = true;
       chromeParts = null;
-    }
-    if (!chromeParts || chromeParts.chrome !== chrome) {
+	    }
+	    if (!chrome.querySelector(".dream-skin-pointer-focus")) {
+	      const pointerFocus = document.createElement("div");
+	      pointerFocus.className = "dream-skin-pointer-focus";
+	      chrome.prepend(pointerFocus);
+	    }
+	    if (!chromeParts || chromeParts.chrome !== chrome) {
       chromeParts = {
         chrome,
         name: chrome.querySelector(".dream-skin-brand b"),
@@ -872,6 +886,7 @@
     window[DISABLED_KEY] = true;
     document.documentElement?.classList.remove("codex-dream-skin");
     document.documentElement?.removeAttribute(SHELL_ATTR);
+    document.documentElement?.removeAttribute("data-dream-pointer");
     for (const name of ART_ATTRS) document.documentElement?.removeAttribute(name);
     document.documentElement?.style.removeProperty("--dream-skin-art");
     for (const name of THEME_VARIABLES) document.documentElement?.style.removeProperty(name);
@@ -908,6 +923,11 @@
     if (state?.mediaHandler && state?.mediaQuery) {
       try { state.mediaQuery.removeEventListener("change", state.mediaHandler); } catch {}
     }
+    if (state?.pointerMoveHandler) window.removeEventListener("pointermove", state.pointerMoveHandler);
+    if (state?.pointerLeaveHandler) window.removeEventListener("pointerleave", state.pointerLeaveHandler);
+    if (state?.pointerFocusFrame != null && typeof cancelAnimationFrame === "function") {
+      cancelAnimationFrame(state.pointerFocusFrame);
+    }
     if (state?.artUrl) URL.revokeObjectURL(state.artUrl);
     delete window[STATE_KEY];
     return true;
@@ -941,6 +961,43 @@
     scheduler.timeout = setTimeout(flushScheduledEnsure, delay);
   };
   const scrollButtonHandler = () => scheduleScrollBottomSync();
+  const applyPointerFocus = () => {
+    const pointer = pendingPointerFocus;
+    if (!pointer) return;
+    pendingPointerFocus = null;
+    const root = document.documentElement;
+    if (!root) return;
+    setStyleProperty(root, "--ds-pointer-x", `${Math.round(pointer.x)}px`);
+    setStyleProperty(root, "--ds-pointer-y", `${Math.round(pointer.y)}px`);
+    setAttribute(root, "data-dream-pointer", "active");
+  };
+  const pointerMoveHandler = (event) => {
+    pendingPointerFocus = {
+      x: Number.isFinite(event?.clientX) ? event.clientX : 0,
+      y: Number.isFinite(event?.clientY) ? event.clientY : 0,
+    };
+    if (typeof requestAnimationFrame !== "function") {
+      applyPointerFocus();
+      return;
+    }
+    if (pointerFocusFrame != null) return;
+    pointerFocusFrame = requestAnimationFrame(() => {
+      pointerFocusFrame = null;
+      const state = window[STATE_KEY];
+      if (state?.installToken === installToken) state.pointerFocusFrame = null;
+      applyPointerFocus();
+    });
+    const state = window[STATE_KEY];
+    if (state?.installToken === installToken) state.pointerFocusFrame = pointerFocusFrame;
+  };
+  const pointerLeaveHandler = () => {
+    pendingPointerFocus = null;
+    const root = document.documentElement;
+    if (root?.getAttribute("data-dream-pointer") !== "idle") {
+      root?.setAttribute("data-dream-pointer", "idle");
+      metrics.attributeWrites += 1;
+    }
+  };
   const sidebarPointerHandler = (event) => {
     const item = sidebarThreadItemFromEvent(event);
     if (item) {
@@ -989,6 +1046,9 @@
     scrollButtonHandler,
     scrollContainer: null,
     scrollButtonFrame,
+    pointerMoveHandler,
+    pointerLeaveHandler,
+    pointerFocusFrame,
     currentSidebarSyncPending,
     sidebarPointerHandler,
     sidebarPanel: null,
@@ -1021,6 +1081,8 @@
   const timer = setInterval(() => ensure(), 15000);
   window[STATE_KEY].timer = timer;
   window.addEventListener("resize", resizeHandler, { passive: true });
+  window.addEventListener("pointermove", pointerMoveHandler, { passive: true });
+  window.addEventListener("pointerleave", pointerLeaveHandler, { passive: true });
   if (mediaHandler && mediaQuery) {
     mediaQuery.addEventListener("change", mediaHandler);
   }

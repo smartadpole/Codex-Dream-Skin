@@ -104,6 +104,8 @@
   --ds-selection-bg-rgb: 255 212 105;
   --ds-selection-text-rgb: var(--ds-bg-rgb);
   --ds-selection-alpha: .86;
+  --ds-pointer-x: 50vw;
+  --ds-pointer-y: 50vh;
   --ds-current-thread-rgb: 255 226 83;
   --ds-current-thread-ink: #071016;
   --ds-diff-add: #3fe47e;
@@ -133,6 +135,8 @@ html.codex-dream-skin[data-dream-shell="light"] {
   --ds-selection-bg-rgb: 7 16 22;
   --ds-selection-text-rgb: 244 248 249;
   --ds-selection-alpha: .84;
+  --ds-pointer-x: 50vw;
+  --ds-pointer-y: 50vh;
   --ds-current-thread-rgb: 255 214 64;
   --ds-current-thread-ink: #081018;
   --ds-hero-scrim: linear-gradient(90deg,
@@ -268,6 +272,8 @@ html.codex-dream-skin[data-dream-art-wide="true"] {
   --ds-selection-bg-rgb: 255 212 105 !important;
   --ds-selection-text-rgb: 6 10 14 !important;
   --ds-selection-alpha: .88 !important;
+  --ds-pointer-x: 50vw;
+  --ds-pointer-y: 50vh;
   --ds-diff-add: #2cff84 !important;
   --ds-diff-delete: #ff5f5f !important;
 }
@@ -1526,6 +1532,42 @@ html.codex-dream-skin[data-dream-art-wide="true"] .main-surface
   overflow: hidden;
   pointer-events: none;
   border-radius: 16px 0 0 0;
+}
+
+.dream-skin-pointer-focus {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  contain: strict;
+  background:
+    radial-gradient(circle 170px at var(--ds-pointer-x, 50vw) var(--ds-pointer-y, 50vh),
+      rgb(var(--ds-link-rgb) / .16),
+      rgb(var(--ds-neon-rgb) / .10) 42%,
+      transparent 70%),
+    radial-gradient(circle 560px at var(--ds-pointer-x, 50vw) var(--ds-pointer-y, 50vh),
+      transparent 0 34%,
+      rgb(var(--ds-bg-rgb) / .08) 70%,
+      rgb(var(--ds-bg-rgb) / .14) 100%);
+  transition: opacity .16s cubic-bezier(.22, 1, .36, 1);
+  will-change: background, opacity;
+}
+
+html.codex-dream-skin[data-dream-pointer="active"] .dream-skin-pointer-focus {
+  opacity: 1;
+}
+
+html.codex-dream-skin[data-dream-route="task"] .dream-skin-pointer-focus {
+  background:
+    radial-gradient(circle 150px at var(--ds-pointer-x, 50vw) var(--ds-pointer-y, 50vh),
+      rgb(var(--ds-link-rgb) / .13),
+      rgb(var(--ds-neon-rgb) / .09) 42%,
+      transparent 72%),
+    radial-gradient(circle 520px at var(--ds-pointer-x, 50vw) var(--ds-pointer-y, 50vh),
+      transparent 0 36%,
+      rgb(var(--ds-bg-rgb) / .07) 72%,
+      rgb(var(--ds-bg-rgb) / .12) 100%);
 }
 
 .dream-skin-brand {
