@@ -330,8 +330,8 @@ assert.doesNotMatch(
 );
 assert.match(
   css,
-  /data-dream-route="task"[\s\S]{0,320}\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover\s*\{[\s\S]{0,420}border-color:\s*rgb\(var\(--ds-neon-rgb\) \/ \.34\) !important;[\s\S]{0,420}0 0 12px rgb\(var\(--ds-neon-rgb\) \/ \.08\) !important;/,
-  "Task message hover should use a cheap direct selector and restrained highlight.",
+  /data-dream-route="task"[\s\S]{0,320}\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover\s*\{[\s\S]{0,420}border-color:\s*rgb\(var\(--ds-neon-rgb\) \/ \.48\) !important;[\s\S]{0,520}0 0 18px rgb\(var\(--ds-neon-rgb\) \/ \.14\) !important;/,
+  "Task message hover should use a cheap direct selector with a readable highlight.",
 );
 assert.doesNotMatch(
   css,
@@ -382,6 +382,26 @@ assert.match(
   css,
   /section > header\[class\*="bg-token-dropdown-background"\][\s\S]{0,260}background-color:\s*rgb\(var\(--ds-panel-rgb\) \/ \.18\) !important;/,
   "Floating panel section headers must not retain native white dropdown slabs.",
+);
+assert.match(
+  css,
+  /\[class~="relative"\]\[class~="flex"\]\[class~="max-h-full"\]\[class~="min-h-0"\]\[class~="flex-col"\]\[class~="overflow-hidden"\]\[class\*="bg-token-dropdown-background"\][\s\S]{0,520}:is\(\[class\*="text-token-foreground"\],[\s\S]{0,220}-webkit-text-fill-color:\s*rgb\(var\(--ds-text-rgb\) \/ \.96\) !important;/,
+  "Floating panel foreground tokens must stay readable on the dark glass surface.",
+);
+assert.match(
+  css,
+  /\[class\*="text-token-git-decoration-added"[\s\S]{0,220}color:\s*var\(--ds-diff-add\) !important;[\s\S]{0,180}font-weight:\s*650 !important;/,
+  "Git added counts should keep a high-contrast green treatment.",
+);
+assert.match(
+  css,
+  /\[class\*="text-token-git-decoration-deleted"[\s\S]{0,220}color:\s*var\(--ds-diff-delete\) !important;[\s\S]{0,180}font-weight:\s*650 !important;/,
+  "Git deleted counts should keep a high-contrast red treatment.",
+);
+assert.match(
+  css,
+  /\[class\*="_markdown"\] :is\(thead, th\)[\s\S]{0,260}color:\s*var\(--ds-text\) !important;[\s\S]{0,160}text-shadow:\s*0 1px 2px rgb\(var\(--ds-bg-rgb\) \/ \.78\) !important;/,
+  "Markdown table headers must not inherit dark native text on dark glass.",
 );
 
 function createStyleDeclaration() {
