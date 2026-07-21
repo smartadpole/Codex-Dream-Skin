@@ -127,6 +127,21 @@ assert.match(
   /background-size:\s*100% 48%,\s*100% 2px !important;/,
   "Inline links should keep a visible underline/highlight in their resting state.",
 );
+assert.match(
+  css,
+  /--ds-selection-bg-rgb:\s*255 212 105 !important;[\s\S]{0,140}--ds-selection-text-rgb:\s*6 10 14 !important;[\s\S]{0,80}--ds-selection-alpha:\s*\.88 !important;/,
+  "Wide artwork text selection should use a deliberate inverse warm marker instead of native blue.",
+);
+assert.match(
+  css,
+  /html\.codex-dream-skin ::selection,[\s\S]{0,360}background-color:\s*rgb\(var\(--ds-selection-bg-rgb\) \/ var\(--ds-selection-alpha, \.86\)\) !important;[\s\S]{0,80}text-shadow:\s*none !important;/,
+  "Global selection styling must override native selection color and remove text shadow.",
+);
+assert.match(
+  css,
+  /data-dream-art-wide="true"\] \.main-surface:not\(\.dream-skin-home-shell\)[\s\S]{0,220}::selection,[\s\S]{0,360}-webkit-text-fill-color:\s*rgb\(var\(--ds-selection-text-rgb\) \/ 1\) !important;[\s\S]{0,180}text-shadow:\s*none !important;/,
+  "Wide task markdown, code, and composer selections must render as true inverse text.",
+);
 const performanceGuardIndex = css.indexOf("/* Performance guard for complex full-window art.");
 const bodyAttachmentGuardIndex = css.indexOf(
   'html.codex-dream-skin[data-dream-art-wide="true"] body,',

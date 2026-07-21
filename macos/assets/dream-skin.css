@@ -101,6 +101,9 @@
   --ds-link-rgb: 255 205 96;
   --ds-link: #ffe8aa;
   --ds-link-hover: #071016;
+  --ds-selection-bg-rgb: 255 212 105;
+  --ds-selection-text-rgb: var(--ds-bg-rgb);
+  --ds-selection-alpha: .86;
   --ds-current-thread-rgb: 255 226 83;
   --ds-current-thread-ink: #071016;
   --ds-diff-add: #3fe47e;
@@ -127,6 +130,9 @@ html.codex-dream-skin[data-dream-shell="light"] {
   --ds-link-rgb: 160 92 20;
   --ds-link: #6a3900;
   --ds-link-hover: #071016;
+  --ds-selection-bg-rgb: 7 16 22;
+  --ds-selection-text-rgb: 244 248 249;
+  --ds-selection-alpha: .84;
   --ds-current-thread-rgb: 255 214 64;
   --ds-current-thread-ink: #081018;
   --ds-hero-scrim: linear-gradient(90deg,
@@ -259,6 +265,9 @@ html.codex-dream-skin[data-dream-art-wide="true"] {
   --ds-scrollbar-track: rgb(var(--ds-panel-rgb) / .20) !important;
   --ds-link-rgb: 255 212 105 !important;
   --ds-link: #ffebb3 !important;
+  --ds-selection-bg-rgb: 255 212 105 !important;
+  --ds-selection-text-rgb: 6 10 14 !important;
+  --ds-selection-alpha: .88 !important;
   --ds-diff-add: #2cff84 !important;
   --ds-diff-delete: #ff5f5f !important;
 }
@@ -1184,6 +1193,25 @@ html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-
     0 0 0 1px rgb(var(--ds-link-rgb) / .46),
     0 5px 12px rgb(0 0 0 / .18) !important;
   outline-color: rgb(var(--ds-link-rgb) / .50) !important;
+  text-shadow: none !important;
+}
+
+html.codex-dream-skin ::selection,
+html.codex-dream-skin .main-surface:not(.dream-skin-home-shell) *::selection,
+html.codex-dream-skin .composer-surface-chrome *::selection {
+  color: rgb(var(--ds-selection-text-rgb) / .98) !important;
+  -webkit-text-fill-color: rgb(var(--ds-selection-text-rgb) / .98) !important;
+  background-color: rgb(var(--ds-selection-bg-rgb) / var(--ds-selection-alpha, .86)) !important;
+  text-shadow: none !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  :is([class*="_markdown"], [class*="markdown"], p, li, span, strong, em, code, pre, a)::selection,
+html.codex-dream-skin[data-dream-art-wide="true"] .composer-surface-chrome
+  :is(.ProseMirror, [contenteditable="true"], textarea, input, p, span)::selection {
+  color: rgb(var(--ds-selection-text-rgb) / 1) !important;
+  -webkit-text-fill-color: rgb(var(--ds-selection-text-rgb) / 1) !important;
+  background-color: rgb(var(--ds-selection-bg-rgb) / var(--ds-selection-alpha, .88)) !important;
   text-shadow: none !important;
 }
 
