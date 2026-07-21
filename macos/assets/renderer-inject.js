@@ -24,6 +24,7 @@
     "--ds-text-rgb", "--ds-muted-rgb", "--ds-line-rgb",
     "--ds-link-rgb", "--ds-link", "--ds-link-hover",
     "--ds-pointer-x", "--ds-pointer-y",
+    "--ds-panel-focus-x", "--ds-panel-focus-y", "--ds-panel-focus-width", "--ds-panel-focus-height", "--ds-panel-focus-radius",
     "--ds-current-thread-rgb", "--ds-current-thread-ink",
     "--dream-art-focus-x", "--dream-art-focus-y", "--dream-art-position",
     "--dream-skin-focus-x", "--dream-skin-focus-y", "--dream-skin-art-position",
@@ -87,8 +88,13 @@
   }
   if (previous?.pointerMoveHandler) window.removeEventListener("pointermove", previous.pointerMoveHandler);
   if (previous?.pointerLeaveHandler) window.removeEventListener("pointerleave", previous.pointerLeaveHandler);
+  if (previous?.panelFocusHandler) window.removeEventListener("pointerover", previous.panelFocusHandler);
+  if (previous?.panelFocusLeaveHandler) window.removeEventListener("pointerout", previous.panelFocusLeaveHandler);
   if (previous?.pointerFocusFrame != null && typeof cancelAnimationFrame === "function") {
     cancelAnimationFrame(previous.pointerFocusFrame);
+  }
+  if (previous?.panelFocusFrame != null && typeof cancelAnimationFrame === "function") {
+    cancelAnimationFrame(previous.panelFocusFrame);
   }
 
   const cssString = (value) => JSON.stringify(String(value ?? ""));
@@ -544,6 +550,9 @@
   let scrollButtonFrame = null;
   let pointerFocusFrame = null;
   let pendingPointerFocus = null;
+  let panelFocusFrame = null;
+  let pendingPanelFocus = null;
+  let activePanelFocusNode = null;
   let currentSidebarItem = document.querySelector?.(".app-shell-left-panel .dream-skin-current-thread") || null;
   let currentSidebarProject = document.querySelector?.(".app-shell-left-panel .dream-skin-current-project") || null;
   let currentSidebarSyncPending = false;
@@ -818,6 +827,7 @@
       chrome.setAttribute("aria-hidden", "true");
       chrome.innerHTML = `
         <div class="dream-skin-pointer-focus"></div>
+        <div class="dream-skin-panel-focus"></div>
         <div class="dream-skin-brand">
           <span class="dream-skin-portal-mark">◉</span>
           <span><b></b><small></small></span>
@@ -835,6 +845,13 @@
 	      pointerFocus.className = "dream-skin-pointer-focus";
 	      chrome.prepend(pointerFocus);
 	    }
+    if (!chrome.querySelector(".dream-skin-panel-focus")) {
+      const panelFocus = document.createElement("div");
+      panelFocus.className = "dream-skin-panel-focus";
+      const pointerFocus = chrome.querySelector(".dream-skin-pointer-focus");
+      if (pointerFocus?.nextSibling) pointerFocus.parentElement.insertBefore(panelFocus, pointerFocus.nextSibling);
+      else chrome.appendChild(panelFocus);
+    }
 	    if (!chromeParts || chromeParts.chrome !== chrome) {
       chromeParts = {
         chrome,
@@ -887,6 +904,7 @@
     document.documentElement?.classList.remove("codex-dream-skin");
     document.documentElement?.removeAttribute(SHELL_ATTR);
     document.documentElement?.removeAttribute("data-dream-pointer");
+    document.documentElement?.removeAttribute("data-dream-panel-focus");
     for (const name of ART_ATTRS) document.documentElement?.removeAttribute(name);
     document.documentElement?.style.removeProperty("--dream-skin-art");
     for (const name of THEME_VARIABLES) document.documentElement?.style.removeProperty(name);
@@ -925,8 +943,13 @@
     }
     if (state?.pointerMoveHandler) window.removeEventListener("pointermove", state.pointerMoveHandler);
     if (state?.pointerLeaveHandler) window.removeEventListener("pointerleave", state.pointerLeaveHandler);
+    if (state?.panelFocusHandler) window.removeEventListener("pointerover", state.panelFocusHandler);
+    if (state?.panelFocusLeaveHandler) window.removeEventListener("pointerout", state.panelFocusLeaveHandler);
     if (state?.pointerFocusFrame != null && typeof cancelAnimationFrame === "function") {
       cancelAnimationFrame(state.pointerFocusFrame);
+    }
+    if (state?.panelFocusFrame != null && typeof cancelAnimationFrame === "function") {
+      cancelAnimationFrame(state.panelFocusFrame);
     }
     if (state?.artUrl) URL.revokeObjectURL(state.artUrl);
     delete window[STATE_KEY];
@@ -998,6 +1021,100 @@
       metrics.attributeWrites += 1;
     }
   };
+  const panelFocusCandidateFor = (target) => {
+    const node = target?.closest?.([
+      ".thread-scroll-container .group.flex.min-w-0.flex-col",
+      ".main-surface:not(.dream-skin-home-shell) article",
+      '.main-surface:not(.dream-skin-home-shell) [class*="bg-token-foreground/5"]',
+      ".composer-surface-chrome",
+      ".vertical-scroll-fade-mask",
+      '.main-surface:not(.dream-skin-home-shell) [class*="bg-token-dropdown-background"]',
+      '.main-surface:not(.dream-skin-home-shell) [class~="border-l"]',
+      ".app-shell-left-panel [role='listitem']",
+      ".app-shell-left-panel [class*='group/folder-row'][aria-label]",
+    ].join(", "));
+    if (!node || node.id === CHROME_ID || node.closest?.(`#${CHROME_ID}`)) return null;
+    const box = node.getBoundingClientRect?.();
+    if (!box || box.width < 32 || box.height < 24) return null;
+    const rawRight = Number.isFinite(box.right) ? box.right : box.left + box.width;
+    const rawBottom = Number.isFinite(box.bottom) ? box.bottom : box.top + box.height;
+    const viewportWidth = Number.isFinite(window.innerWidth) ? window.innerWidth : rawRight;
+    const viewportHeight = Number.isFinite(window.innerHeight) ? window.innerHeight : rawBottom;
+    const left = clamp(box.left, 0, viewportWidth);
+    const top = clamp(box.top, 0, viewportHeight);
+    const right = clamp(rawRight, 0, viewportWidth);
+    const bottom = clamp(rawBottom, 0, viewportHeight);
+    const visibleBox = {
+      left,
+      top,
+      width: Math.max(0, right - left),
+      height: Math.max(0, bottom - top),
+    };
+    if (visibleBox.width < 32 || visibleBox.height < 24) return null;
+    return { node, box: visibleBox };
+  };
+  const clearPanelFocus = () => {
+    activePanelFocusNode = null;
+    pendingPanelFocus = null;
+    const root = document.documentElement;
+    if (root?.getAttribute("data-dream-panel-focus") !== "idle") {
+      root?.setAttribute("data-dream-panel-focus", "idle");
+      metrics.attributeWrites += 1;
+    }
+  };
+  const applyPanelFocus = () => {
+    const focus = pendingPanelFocus;
+    if (!focus) return;
+    pendingPanelFocus = null;
+    const root = document.documentElement;
+    if (!root) return;
+    setStyleProperty(root, "--ds-panel-focus-x", `${Math.round(focus.left)}px`);
+    setStyleProperty(root, "--ds-panel-focus-y", `${Math.round(focus.top)}px`);
+    setStyleProperty(root, "--ds-panel-focus-width", `${Math.round(focus.width)}px`);
+    setStyleProperty(root, "--ds-panel-focus-height", `${Math.round(focus.height)}px`);
+    setStyleProperty(root, "--ds-panel-focus-radius", focus.radius);
+    setAttribute(root, "data-dream-panel-focus", "active");
+  };
+  const schedulePanelFocus = (focus) => {
+    pendingPanelFocus = focus;
+    if (typeof requestAnimationFrame !== "function") {
+      applyPanelFocus();
+      return;
+    }
+    if (panelFocusFrame != null) return;
+    panelFocusFrame = requestAnimationFrame(() => {
+      panelFocusFrame = null;
+      const state = window[STATE_KEY];
+      if (state?.installToken === installToken) state.panelFocusFrame = null;
+      applyPanelFocus();
+    });
+    const state = window[STATE_KEY];
+    if (state?.installToken === installToken) state.panelFocusFrame = panelFocusFrame;
+  };
+  const panelFocusHandler = (event) => {
+    const candidate = panelFocusCandidateFor(event?.target);
+    if (!candidate) {
+      if (!event?.target?.closest?.(".main-surface, .app-shell-left-panel")) clearPanelFocus();
+      return;
+    }
+    if (candidate.node === activePanelFocusNode) return;
+    activePanelFocusNode = candidate.node;
+    const box = candidate.box;
+    schedulePanelFocus({
+      left: box.left,
+      top: box.top,
+      width: box.width,
+      height: box.height,
+      radius: box.height <= 36 ? "10px" : "18px",
+    });
+  };
+  const panelFocusLeaveHandler = (event) => {
+    if (!activePanelFocusNode) return;
+    const relatedTarget = event?.relatedTarget || null;
+    if (relatedTarget && activePanelFocusNode.contains?.(relatedTarget)) return;
+    if (relatedTarget?.closest?.(".main-surface, .app-shell-left-panel")) return;
+    clearPanelFocus();
+  };
   const sidebarPointerHandler = (event) => {
     const item = sidebarThreadItemFromEvent(event);
     if (item) {
@@ -1049,6 +1166,9 @@
     pointerMoveHandler,
     pointerLeaveHandler,
     pointerFocusFrame,
+    panelFocusHandler,
+    panelFocusLeaveHandler,
+    panelFocusFrame,
     currentSidebarSyncPending,
     sidebarPointerHandler,
     sidebarPanel: null,
@@ -1083,6 +1203,8 @@
   window.addEventListener("resize", resizeHandler, { passive: true });
   window.addEventListener("pointermove", pointerMoveHandler, { passive: true });
   window.addEventListener("pointerleave", pointerLeaveHandler, { passive: true });
+  window.addEventListener("pointerover", panelFocusHandler, { passive: true });
+  window.addEventListener("pointerout", panelFocusLeaveHandler, { passive: true });
   if (mediaHandler && mediaQuery) {
     mediaQuery.addEventListener("change", mediaHandler);
   }
