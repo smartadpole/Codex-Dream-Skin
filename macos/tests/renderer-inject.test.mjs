@@ -330,8 +330,13 @@ assert.doesNotMatch(
 );
 assert.match(
   css,
-  /data-dream-route="task"[\s\S]{0,260}:has\(> \[class\*="_markdownContent"\]\):hover\s*\{[\s\S]{0,420}border-color:\s*rgb\(var\(--ds-neon-rgb\) \/ \.42\) !important;[\s\S]{0,420}0 0 22px rgb\(var\(--ds-neon-rgb\) \/ \.14\) !important;/,
-  "Task message blocks should gain a lightweight hover highlight without changing their resting glass surface.",
+  /data-dream-route="task"[\s\S]{0,320}\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover\s*\{[\s\S]{0,420}border-color:\s*rgb\(var\(--ds-neon-rgb\) \/ \.34\) !important;[\s\S]{0,420}0 0 12px rgb\(var\(--ds-neon-rgb\) \/ \.08\) !important;/,
+  "Task message hover should use a cheap direct selector and restrained highlight.",
+);
+assert.doesNotMatch(
+  css,
+  /:has\(> \[class\*="_markdownContent"\]\):hover/,
+  "Task message hover must not use structural :has matching on streamed message nodes.",
 );
 assert.match(
   css,
@@ -367,6 +372,16 @@ assert.match(
   css,
   /\[class~="bg-token-main-surface-primary"\]\[class~="h-full"\]\[class~="w-full"\][\s\S]{0,100}background:\s*transparent !important;/,
   "Full-size utility route wrappers should not hide the selected artwork.",
+);
+assert.match(
+  css,
+  /\[class~="relative"\]\[class~="flex"\]\[class~="max-h-full"\]\[class~="min-h-0"\]\[class~="flex-col"\]\[class~="overflow-hidden"\]\[class\*="bg-token-dropdown-background"\][\s\S]{0,220}border-radius:\s*18px !important;[\s\S]{0,520}background-image:\s*linear-gradient\(/,
+  "The floating environment and side-chat panel should use one restrained dark glass surface.",
+);
+assert.match(
+  css,
+  /section > header\[class\*="bg-token-dropdown-background"\][\s\S]{0,260}background-color:\s*rgb\(var\(--ds-panel-rgb\) \/ \.18\) !important;/,
+  "Floating panel section headers must not retain native white dropdown slabs.",
 );
 
 function createStyleDeclaration() {

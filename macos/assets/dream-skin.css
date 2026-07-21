@@ -977,18 +977,18 @@ html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-hom
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   [class*="bg-token-foreground/5"]:hover,
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
-  .group.flex.min-w-0.flex-col:has(> [class*="_markdownContent"]):hover {
-  border-color: rgb(var(--ds-neon-rgb) / .42) !important;
+  .thread-scroll-container .group.flex.min-w-0.flex-col:hover {
+  border-color: rgb(var(--ds-neon-rgb) / .34) !important;
   background-image:
     var(--ds-glass-sheen),
     linear-gradient(135deg,
-      rgb(var(--ds-panel-rgb) / .54),
-      rgb(var(--ds-panel-2-rgb) / .36) 72%,
-      rgb(var(--ds-neon-rgb) / .14)) !important;
+      rgb(var(--ds-panel-rgb) / .48),
+      rgb(var(--ds-panel-2-rgb) / .31) 72%,
+      rgb(var(--ds-neon-rgb) / .10)) !important;
   box-shadow:
     var(--ds-message-shadow),
-    0 0 0 1px rgb(var(--ds-neon-rgb) / .16),
-    0 0 22px rgb(var(--ds-neon-rgb) / .14) !important;
+    0 0 0 1px rgb(var(--ds-neon-rgb) / .10),
+    0 0 12px rgb(var(--ds-neon-rgb) / .08) !important;
 }
 
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
@@ -1170,11 +1170,44 @@ html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-
   text-shadow: none !important;
 }
 
-html.codex-dream-skin [class*="bg-token-dropdown-background"]:has([class*="summary-panel-item"]) {
+html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
+  [class*="bg-token-dropdown-background"] {
+  background-color: rgb(var(--ds-panel-rgb) / .20) !important;
+  background-image: none !important;
+  color: rgb(var(--ds-text-rgb) / .88) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  [class~="relative"][class~="flex"][class~="max-h-full"][class~="min-h-0"][class~="flex-col"][class~="overflow-hidden"][class*="bg-token-dropdown-background"] {
   border: 1px solid var(--ds-readable-border) !important;
-  background-image: var(--ds-glass-sheen), var(--ds-readable-gradient) !important;
-  box-shadow: var(--ds-readable-shadow) !important;
-  backdrop-filter: var(--ds-readable-filter) !important;
+  border-radius: 18px !important;
+  background-color: transparent !important;
+  background-image:
+    linear-gradient(135deg,
+      rgb(var(--ds-panel-rgb) / .38),
+      rgb(var(--ds-panel-2-rgb) / .24) 74%,
+      rgb(var(--ds-neon-rgb) / .05)) !important;
+  box-shadow:
+    0 8px 18px rgb(0 0 0 / .20),
+    0 0 0 1px rgb(var(--ds-neon-rgb) / .06) !important;
+  backdrop-filter: none !important;
+}
+
+html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
+  section > header[class*="bg-token-dropdown-background"] {
+  background-color: rgb(var(--ds-panel-rgb) / .18) !important;
+  background-image: none !important;
+  border-bottom: 1px solid rgb(var(--ds-neon-rgb) / .10) !important;
+  color: rgb(var(--ds-muted-rgb) / .92) !important;
+}
+
+html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
+  section > header[class*="bg-token-dropdown-background"]
+  :is(button, span, svg) {
+  color: rgb(var(--ds-muted-rgb) / .94) !important;
+  -webkit-text-fill-color: rgb(var(--ds-muted-rgb) / .94) !important;
 }
 
 html.codex-dream-skin [class*="summary-panel-item"] {
