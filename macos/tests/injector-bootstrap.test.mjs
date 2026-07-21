@@ -19,8 +19,8 @@ function createFixture() {
     document: {
       documentElement: {},
       querySelector(selector) {
-        if (selector === "main.main-surface") return markers.shell ? {} : null;
-        if (selector === "aside.app-shell-left-panel") return markers.sidebar ? {} : null;
+        if (selector === ".main-surface") return markers.shell ? {} : null;
+        if (selector === ".app-shell-left-panel") return markers.sidebar ? {} : null;
         return null;
       },
     },

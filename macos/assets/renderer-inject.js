@@ -567,6 +567,19 @@
     return candidates.find((text) => !text.includes("Open in")) || "";
   };
 
+  const setCurrentSidebarProject = (nextProject) => {
+    if (currentSidebarProject && (!currentSidebarProject.isConnected || currentSidebarProject !== nextProject)) {
+      currentSidebarProject.classList.remove("dream-skin-current-project");
+    } else if (!currentSidebarProject) {
+      document.querySelector(".app-shell-left-panel .dream-skin-current-project")
+        ?.classList.remove("dream-skin-current-project");
+    }
+    if (nextProject && !nextProject.classList.contains("dream-skin-current-project")) {
+      nextProject.classList.add("dream-skin-current-project");
+    }
+    currentSidebarProject = nextProject || null;
+  };
+
   const setCurrentSidebarItem = (nextCurrent) => {
     if (currentSidebarItem && (!currentSidebarItem.isConnected || currentSidebarItem !== nextCurrent)) {
       currentSidebarItem.classList.remove("dream-skin-current-thread");
@@ -580,16 +593,7 @@
     currentSidebarItem = nextCurrent || null;
 
     const nextProject = nextCurrent?.parentElement?.closest('.app-shell-left-panel [role="listitem"][aria-label]') || null;
-    if (currentSidebarProject && (!currentSidebarProject.isConnected || currentSidebarProject !== nextProject)) {
-      currentSidebarProject.classList.remove("dream-skin-current-project");
-    } else if (!currentSidebarProject) {
-      document.querySelector(".app-shell-left-panel .dream-skin-current-project")
-        ?.classList.remove("dream-skin-current-project");
-    }
-    if (nextProject && !nextProject.classList.contains("dream-skin-current-project")) {
-      nextProject.classList.add("dream-skin-current-project");
-    }
-    currentSidebarProject = nextProject;
+    if (nextCurrent || nextProject) setCurrentSidebarProject(nextProject);
   };
 
   const sidebarThreadItemFromEvent = (event) => {
@@ -600,19 +604,49 @@
     return item;
   };
 
+  const sidebarProjectFromEvent = (event) => {
+    const project = event.target?.closest?.('.app-shell-left-panel [role="listitem"][aria-label]');
+    if (!project) return null;
+    const action = event.target?.closest?.('button[aria-label^="Start new chat in"], button[aria-label^="Project actions for"]');
+    return action ? project : null;
+  };
+
+  const nodeTouchesRouteState = (node) => {
+    const element = node?.nodeType === 1 ? node : node?.parentElement;
+    if (!element || typeof element.closest !== "function") return false;
+    if (element.closest('.thread-scroll-container [data-message-author-role], .thread-scroll-container article, .thread-scroll-container [class*="_markdownContent"]')) {
+      return false;
+    }
+    return Boolean(element.closest(
+      '.app-shell-left-panel, .main-surface > header, .composer-surface-chrome, [data-testid="home-icon"], [data-feature="game-source"], .group\\/home-suggestions, [class*="_homeUtilityBar_"]',
+    ));
+  };
+
+  const mutationsTouchRouteState = (records) => records.some((record) => {
+    if (nodeTouchesRouteState(record.target)) return true;
+    for (const node of record.addedNodes || []) {
+      if (nodeTouchesRouteState(node)) return true;
+    }
+    for (const node of record.removedNodes || []) {
+      if (nodeTouchesRouteState(node)) return true;
+    }
+    return false;
+  });
+
   const syncCurrentSidebarThread = () => {
     const title = currentTaskTitle();
     const items = [...document.querySelectorAll('.app-shell-left-panel [role="list"] > [role="listitem"]')];
     let nextCurrent = null;
     if (title) {
       nextCurrent = items.find((item) => cleanText(item.textContent) === title) || null;
+      if (!nextCurrent) {
+        setCurrentSidebarItem(null);
+        return;
+      }
     } else {
-      nextCurrent = items.find((item) => {
-        const text = cleanText(item.textContent);
-        if (!text || /^show (more|less)$/i.test(text) || text === "No chats") return false;
-        if (!item.querySelector('[class~="bg-token-list-hover-background"]')) return false;
-        return true;
-      }) || document.querySelector(".app-shell-left-panel .dream-skin-current-thread");
+      setCurrentSidebarItem(null);
+      if (currentSidebarProject?.isConnected) setCurrentSidebarProject(currentSidebarProject);
+      return;
     }
     if (nextCurrent) setCurrentSidebarItem(nextCurrent);
   };
@@ -894,9 +928,18 @@
     const item = sidebarThreadItemFromEvent(event);
     if (item) {
       setCurrentSidebarItem(item);
+      return;
+    }
+    const project = sidebarProjectFromEvent(event);
+    if (project) {
+      setCurrentSidebarItem(null);
+      setCurrentSidebarProject(project);
     }
   };
-  const observer = new MutationObserver(() => scheduleEnsure({ route: true }));
+  const observer = new MutationObserver((records) => {
+    if (mutationsTouchRouteState(records)) scheduleEnsure({ route: true });
+    else scheduleScrollBottomSync();
+  });
   rootObserver = new MutationObserver(() => {
     if (samplingNativeShell) return;
     scheduleEnsure({ root: true, route: true });

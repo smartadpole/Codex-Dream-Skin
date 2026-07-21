@@ -82,6 +82,26 @@ assert.match(
   /data-dream-art-wide="true"\]\s*\{[\s\S]{0,120}--ds-readable-filter:\s*none !important;/,
   "Wide complex-image skins should default to a low-compositor-cost glass surface.",
 );
+assert.match(
+  css,
+  /--ds-message-gradient:\s*linear-gradient\(135deg,[\s\S]{0,220}rgb\(var\(--ds-panel-rgb\) \/ \.42\)/,
+  "Task messages must use a lighter dedicated glass layer instead of the general readable surface.",
+);
+assert.doesNotMatch(
+  css,
+  /data-dream-route="task"[\s\S]{0,260}background:\s*rgb\(var\(--ds-panel-rgb\) \/ \.88\) !important;/,
+  "Task-route messages must not regress to an opaque dark panel.",
+);
+assert.match(
+  css,
+  /--ds-link:\s*#ffebb3 !important;/,
+  "Wide artwork links should be visibly distinct from ordinary message text.",
+);
+assert.match(
+  css,
+  /background-size:\s*100% 48%,\s*100% 2px !important;/,
+  "Inline links should keep a visible underline/highlight in their resting state.",
+);
 const performanceGuardIndex = css.indexOf("/* Performance guard for complex full-window art.");
 const bodyAttachmentGuardIndex = css.indexOf(
   'html.codex-dream-skin[data-dream-art-wide="true"] body,',
@@ -122,6 +142,21 @@ assert.match(
   template,
   /setInterval\(\(\) => ensure\(\), 15000\)/,
   "The safety ensure interval should stay low frequency for performance.",
+);
+assert.match(
+  template,
+  /const observer = new MutationObserver\(\(records\) => \{[\s\S]{0,180}mutationsTouchRouteState\(records\)[\s\S]{0,120}scheduleScrollBottomSync\(\)/,
+  "Streaming message mutations should avoid a full route/sidebar sync when only the thread body changes.",
+);
+assert.doesNotMatch(
+  template,
+  /if \(!item\.querySelector\('\[class~="bg-token-list-hover-background"\]'\)\) return false;/,
+  "New-chat routing must not infer the current thread from transient native hover classes.",
+);
+assert.match(
+  template,
+  /const sidebarProjectFromEvent = \(event\) => \{[\s\S]{0,360}Start new chat in[\s\S]{0,160}return action \? project : null;/,
+  "Starting a new chat from a project should mark the project row, not a stale conversation.",
 );
 assert.match(
   injectorScript,
@@ -225,8 +260,8 @@ assert.match(
 );
 assert.match(
   css,
-  /\.app-shell-left-panel[\s\S]{0,180}:is\(button\.no-drag, button\[class~="no-drag"\], \[role="button"\]\[class~="no-drag"\]\):not\(\[class\*="group\/folder-row"\]\)[\s\S]{0,240}background:\s*rgb\(var\(--ds-panel-rgb\) \/ \.24\) !important;/,
-  "Sidebar no-drag icon buttons should keep a subtle backing over wallpaper.",
+  /\.app-shell-left-panel[\s\S]{0,180}:is\(button\.no-drag, button\[class~="no-drag"\], \[role="button"\]\[class~="no-drag"\]\):not\(\[class\*="group\/folder-row"\]\)[\s\S]{0,240}background:\s*transparent !important;[\s\S]{0,120}box-shadow:\s*none !important;/,
+  "Sidebar no-drag icon buttons should stay quiet until hover or focus.",
 );
 assert.match(
   css,
@@ -235,8 +270,8 @@ assert.match(
 );
 assert.match(
   css,
-  /:is\(a\[href\], \[role="link"\],[\s\S]{0,1400}color:\s*var\(--ds-link\) !important;[\s\S]{0,320}text-decoration-line:\s*none !important;[\s\S]{0,520}background-size:\s*100% 62%, 100% 2px !important;[\s\S]{0,360}text-shadow:\s*none !important;/,
-  "Markdown links should use the modern high-contrast marker treatment without old underline styling.",
+  /:is\(a\[href\], \[role="link"\],[\s\S]{0,1400}color:\s*var\(--ds-link\) !important;[\s\S]{0,320}text-decoration-line:\s*none !important;[\s\S]{0,520}background-size:\s*100% 48%, 100% 2px !important;[\s\S]{0,360}text-shadow:[\s\S]{0,160}rgb\(var\(--ds-link-rgb\) \/ \.18\) !important;/,
+  "Markdown links should use a visible resting marker and readable glow without becoming a hover-selected block.",
 );
 assert.match(
   css,
@@ -495,7 +530,19 @@ assert.equal(defaultMetrics.rootPasses, 1);
 assert.equal(defaultMetrics.routePasses, 1);
 assert.equal(defaultMetrics.layoutReads, 1);
 for (let index = 0; index < 50; index += 1) defaults.observers[0].callback([]);
-assert.ok(defaults.window.__CODEX_DREAM_SKIN_STATE__.scheduler.timeout, "Mutation bursts should schedule an ensure.");
+assert.equal(
+  defaults.window.__CODEX_DREAM_SKIN_STATE__.scheduler.timeout,
+  null,
+  "Thread-only or empty mutation bursts should not schedule a route ensure.",
+);
+const sidebarMutationNode = {
+  nodeType: 1,
+  closest(selector) { return selector.includes(".app-shell-left-panel") ? this : null; },
+};
+for (let index = 0; index < 50; index += 1) {
+  defaults.observers[0].callback([{ target: sidebarMutationNode, addedNodes: [], removedNodes: [] }]);
+}
+assert.ok(defaults.window.__CODEX_DREAM_SKIN_STATE__.scheduler.timeout, "Sidebar mutation bursts should schedule an ensure.");
 assert.equal(
   [...defaults.timers.values()].filter((timer) => timer.delay === 240).length,
   1,

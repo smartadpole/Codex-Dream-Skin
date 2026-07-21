@@ -59,6 +59,12 @@
   --ds-readable-gradient: linear-gradient(135deg,
     rgb(var(--ds-panel-rgb) / .78),
     rgb(var(--ds-panel-2-rgb) / .70));
+  --ds-message-gradient: linear-gradient(135deg,
+    rgb(var(--ds-panel-rgb) / .50),
+    rgb(var(--ds-panel-2-rgb) / .36));
+  --ds-message-border: rgb(var(--ds-accent-rgb) / .24);
+  --ds-message-shadow: 0 10px 24px rgb(var(--ds-bg-rgb) / .18);
+  --ds-composer-gradient: var(--ds-readable-gradient);
   --ds-readable-border: rgb(var(--ds-accent-rgb) / .30);
   --ds-readable-shadow: 0 14px 34px rgb(var(--ds-bg-rgb) / .26);
   --ds-readable-filter: blur(12px) saturate(116%);
@@ -93,7 +99,7 @@
     rgb(var(--ds-neon-rgb) / .75),
     rgb(var(--ds-accent-rgb) / .22));
   --ds-link-rgb: 255 205 96;
-  --ds-link: #ffe3a0;
+  --ds-link: #ffe8aa;
   --ds-link-hover: #071016;
   --ds-current-thread-rgb: 255 226 83;
   --ds-current-thread-ink: #071016;
@@ -117,7 +123,7 @@ html.codex-dream-skin[data-dream-shell="light"] {
   --ds-highlight-rgb: var(--ds-secondary-rgb);
   --ds-on-accent: rgb(var(--ds-panel-rgb) / 1);
   --ds-link-rgb: 160 92 20;
-  --ds-link: #6f3f00;
+  --ds-link: #6a3900;
   --ds-link-hover: #071016;
   --ds-current-thread-rgb: 255 214 64;
   --ds-current-thread-ink: #081018;
@@ -151,6 +157,12 @@ html.codex-dream-skin[data-dream-shell="light"] {
   --ds-readable-gradient: linear-gradient(135deg,
     rgb(var(--ds-panel-rgb) / .76),
     rgb(var(--ds-panel-2-rgb) / .68));
+  --ds-message-gradient: linear-gradient(135deg,
+    rgb(var(--ds-panel-rgb) / .56),
+    rgb(var(--ds-panel-2-rgb) / .42));
+  --ds-message-border: rgb(var(--ds-accent-rgb) / .22);
+  --ds-message-shadow: 0 10px 24px rgb(var(--ds-bg-rgb) / .12);
+  --ds-composer-gradient: var(--ds-readable-gradient);
   --ds-readable-border: rgb(var(--ds-accent-rgb) / .28);
   --ds-readable-shadow: 0 14px 32px rgb(var(--ds-bg-rgb) / .16);
   --ds-readable-filter: blur(12px) saturate(112%);
@@ -195,38 +207,52 @@ html.codex-dream-skin[data-dream-art-wide="true"] {
   --ds-text-rgb: 244 248 249 !important;
   --ds-muted-rgb: 183 199 205 !important;
   --ds-line: rgb(var(--ds-neon-rgb) / .20) !important;
-  --ds-readable-solid: rgb(var(--ds-panel-rgb) / .84) !important;
+  --ds-readable-solid: rgb(var(--ds-panel-rgb) / .62) !important;
   --ds-readable-gradient: linear-gradient(135deg,
-    rgb(var(--ds-panel-rgb) / .86),
-    rgb(var(--ds-panel-2-rgb) / .76) 72%,
-    rgb(var(--ds-neon-rgb) / .16)) !important;
-  --ds-readable-border: rgb(var(--ds-neon-rgb) / .44) !important;
+    rgb(var(--ds-panel-rgb) / .62),
+    rgb(var(--ds-panel-2-rgb) / .50) 72%,
+    rgb(var(--ds-neon-rgb) / .10)) !important;
+  --ds-message-gradient: linear-gradient(135deg,
+    rgb(var(--ds-panel-rgb) / .42),
+    rgb(var(--ds-panel-2-rgb) / .27) 72%,
+    rgb(var(--ds-neon-rgb) / .08)) !important;
+  --ds-message-border: rgb(var(--ds-neon-rgb) / .26) !important;
+  --ds-message-shadow:
+    0 10px 24px rgb(0 0 0 / .22),
+    0 0 14px rgb(var(--ds-neon-rgb) / .06) !important;
+  --ds-composer-gradient: linear-gradient(135deg,
+    rgb(var(--ds-panel-rgb) / .66),
+    rgb(var(--ds-panel-2-rgb) / .54) 72%,
+    rgb(var(--ds-neon-rgb) / .12)) !important;
+  --ds-readable-border: rgb(var(--ds-neon-rgb) / .30) !important;
   --ds-readable-shadow:
     0 20px 52px rgb(0 0 0 / .38),
     0 0 38px rgb(var(--ds-neon-rgb) / .14) !important;
   --ds-readable-filter: blur(18px) saturate(132%) contrast(106%) !important;
-  --ds-control-solid: rgb(var(--ds-panel-rgb) / .50) !important;
-  --ds-control-border: rgb(var(--ds-neon-rgb) / .38) !important;
+  --ds-control-solid: rgb(var(--ds-panel-rgb) / .30) !important;
+  --ds-control-border: rgb(var(--ds-neon-rgb) / .24) !important;
   --ds-control-glow:
     0 0 0 1px rgb(var(--ds-neon-rgb) / .12),
     0 0 16px rgb(var(--ds-neon-rgb) / .22),
     0 8px 18px rgb(0 0 0 / .18) !important;
   --ds-control-hover: linear-gradient(135deg,
-    rgb(var(--ds-panel-2-rgb) / .78),
-    rgb(var(--ds-neon-rgb) / .22)) !important;
+    rgb(var(--ds-panel-2-rgb) / .52),
+    rgb(var(--ds-neon-rgb) / .16)) !important;
   --ds-row-glass: linear-gradient(90deg,
-    rgb(var(--ds-panel-rgb) / .34),
-    rgb(var(--ds-panel-2-rgb) / .18)) !important;
+    rgb(var(--ds-panel-rgb) / .18),
+    rgb(var(--ds-panel-2-rgb) / .08)) !important;
   --ds-row-hover: linear-gradient(90deg,
-    rgb(var(--ds-panel-rgb) / .64),
-    rgb(var(--ds-neon-rgb) / .20)) !important;
+    rgb(var(--ds-panel-rgb) / .42),
+    rgb(var(--ds-neon-rgb) / .14)) !important;
   --ds-row-hover-subtle: linear-gradient(90deg,
-    rgb(var(--ds-panel-rgb) / .46),
-    rgb(var(--ds-neon-rgb) / .12)) !important;
+    rgb(var(--ds-panel-rgb) / .26),
+    rgb(var(--ds-neon-rgb) / .08)) !important;
   --ds-card-inner: rgb(var(--ds-panel-rgb) / .38) !important;
   --ds-caret-rgb: 108 232 255 !important;
   --ds-scrollbar-thumb: rgb(var(--ds-neon-rgb) / .62) !important;
   --ds-scrollbar-track: rgb(var(--ds-panel-rgb) / .20) !important;
+  --ds-link-rgb: 255 212 105 !important;
+  --ds-link: #ffebb3 !important;
 }
 
 html.codex-dream-skin:is([data-dream-art-safe="left"], [data-dream-art-safe-area="left"]) {
@@ -451,13 +477,11 @@ html.codex-dream-skin .app-shell-left-panel
 
 html.codex-dream-skin[data-dream-art-wide="true"] .app-shell-left-panel
   :is(button.no-drag, button[class~="no-drag"], [role="button"][class~="no-drag"]):not([class*="group/folder-row"]) {
-  border: 1px solid rgb(var(--ds-accent-rgb) / .18) !important;
-  background: rgb(var(--ds-panel-rgb) / .24) !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
   color: rgb(var(--ds-muted-rgb) / .98) !important;
   opacity: 1 !important;
-  box-shadow:
-    0 0 0 1px rgb(var(--ds-neon-rgb) / .05),
-    0 3px 10px rgb(0 0 0 / .10) !important;
+  box-shadow: none !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"] .app-shell-left-panel
@@ -495,12 +519,11 @@ html.codex-dream-skin .app-shell-left-panel [class*="cursor-interaction"]:hover 
 
 html.codex-dream-skin .app-shell-left-panel
   :is(button.no-drag, button[class~="no-drag"], [role="button"][class~="no-drag"]):hover {
-  border-color: rgb(var(--ds-caret-rgb, var(--ds-neon-rgb)) / .46) !important;
+  border-color: rgb(var(--ds-caret-rgb, var(--ds-neon-rgb)) / .34) !important;
   background: var(--ds-control-hover) !important;
   box-shadow:
-    0 0 0 1px rgb(var(--ds-caret-rgb, var(--ds-neon-rgb)) / .14),
-    0 0 14px rgb(var(--ds-caret-rgb, var(--ds-neon-rgb)) / .20),
-    0 6px 16px rgb(0 0 0 / .16) !important;
+    0 0 0 1px rgb(var(--ds-caret-rgb, var(--ds-neon-rgb)) / .10),
+    0 5px 14px rgb(0 0 0 / .12) !important;
   color: var(--ds-text) !important;
 }
 
@@ -535,18 +558,16 @@ html.codex-dream-skin .app-shell-left-panel [class*="group/folder-row"][aria-lab
   min-height: var(--height-token-row, 36px) !important;
   margin-block: 3px !important;
   padding-inline: 8px !important;
-  border: 1px solid rgb(var(--ds-accent-rgb) / .24) !important;
+  border: 1px solid rgb(var(--ds-muted-rgb) / .12) !important;
   border-radius: 10px !important;
-  background-image: var(--ds-edge-light), var(--ds-row-glass) !important;
-  background-size: 3px 100%, 100% 100%;
+  background-image: var(--ds-row-glass) !important;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
-  background-position: left center, center;
-  box-shadow:
-    inset 0 1px rgb(var(--ds-text-rgb) / .08),
-    0 4px 14px rgb(0 0 0 / .12) !important;
-  color: var(--ds-text) !important;
-  font-weight: 800 !important;
-  backdrop-filter: blur(8px) saturate(108%) !important;
+  background-position: center;
+  box-shadow: none !important;
+  color: rgb(var(--ds-muted-rgb) / .98) !important;
+  font-weight: 720 !important;
+  backdrop-filter: none !important;
   transition:
     background-color .14s cubic-bezier(.22, 1, .36, 1),
     background .14s cubic-bezier(.22, 1, .36, 1),
@@ -559,6 +580,8 @@ html.codex-dream-skin .app-shell-left-panel [class*="group/folder-row"][aria-lab
 html.codex-dream-skin .app-shell-left-panel .dream-skin-current-project [class*="group/folder-row"][aria-label] {
   border-color: rgb(var(--ds-neon-rgb) / .36) !important;
   background-image: var(--ds-edge-light), var(--ds-row-hover-subtle, var(--ds-row-hover)) !important;
+  background-size: 3px 100%, 100% 100%;
+  background-position: left center, center;
   box-shadow:
     inset 0 1px rgb(var(--ds-text-rgb) / .12),
     0 0 0 1px rgb(var(--ds-neon-rgb) / .08),
@@ -575,24 +598,23 @@ html.codex-dream-skin .app-shell-left-panel [class*="group/folder-row"][aria-lab
   .text-fade-truncate,
 html.codex-dream-skin .app-shell-left-panel [class*="group/folder-row"][aria-label]
   [class*="text-fade-truncate"] {
-  color: var(--ds-text) !important;
-  font-weight: 820 !important;
+  color: inherit !important;
+  font-weight: inherit !important;
   text-shadow: none !important;
 }
 
 html.codex-dream-skin .app-shell-left-panel [class*="group/folder-row"][aria-label] svg {
-  color: var(--ds-accent) !important;
-  filter: drop-shadow(0 0 5px rgb(var(--ds-accent-rgb) / .28));
+  color: currentColor !important;
+  filter: none;
 }
 
 html.codex-dream-skin .app-shell-left-panel button[aria-label^="Project actions for"],
 html.codex-dream-skin .app-shell-left-panel button[aria-label^="Start new chat in"] {
-  border: 1px solid rgb(var(--ds-accent-rgb) / .28) !important;
+  border: 1px solid transparent !important;
   border-radius: 8px !important;
-  background: rgb(var(--ds-panel-rgb) / .42) !important;
-  box-shadow: 0 0 0 1px rgb(var(--ds-accent-rgb) / .06),
-    0 0 8px rgb(var(--ds-accent-rgb) / .10) !important;
-  color: var(--ds-text) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: rgb(var(--ds-muted-rgb) / .94) !important;
   opacity: 1 !important;
 }
 
@@ -639,27 +661,27 @@ html.codex-dream-skin .app-shell-left-panel [aria-current="page"] svg {
 html.codex-dream-skin .app-shell-left-panel .dream-skin-current-thread,
 html.codex-dream-skin .app-shell-left-panel .dream-skin-current-thread
   :is([role="button"], [class*="cursor-interaction"]) {
-  border: 1px solid rgb(var(--ds-current-thread-rgb) / .92) !important;
+  border: 1px solid rgb(var(--ds-current-thread-rgb) / .46) !important;
   border-radius: 9px !important;
   background:
     linear-gradient(90deg,
-      rgb(var(--ds-current-thread-rgb) / .96),
-      rgb(var(--ds-link-rgb) / .52)) !important;
-  color: var(--ds-current-thread-ink) !important;
-  font-weight: 900 !important;
+      rgb(var(--ds-current-thread-rgb) / .28),
+      rgb(var(--ds-link-rgb) / .10)) !important;
+  color: var(--ds-text) !important;
+  font-weight: 820 !important;
   box-shadow:
-    inset 5px 0 rgb(255 255 255 / .90),
-    0 0 0 2px rgb(var(--ds-current-thread-rgb) / .36),
-    0 5px 12px rgb(0 0 0 / .22) !important;
+    inset 3px 0 rgb(var(--ds-current-thread-rgb) / .68),
+    0 0 0 1px rgb(var(--ds-current-thread-rgb) / .12),
+    0 4px 10px rgb(0 0 0 / .12) !important;
   text-shadow: none !important;
   transition: none !important;
 }
 
 html.codex-dream-skin .app-shell-left-panel .dream-skin-current-thread
   :is(span, div, p, svg) {
-  color: var(--ds-current-thread-ink) !important;
-  -webkit-text-fill-color: var(--ds-current-thread-ink) !important;
-  font-weight: 900 !important;
+  color: var(--ds-text) !important;
+  -webkit-text-fill-color: var(--ds-text) !important;
+  font-weight: 820 !important;
   opacity: 1 !important;
   text-shadow: none !important;
 }
@@ -766,7 +788,7 @@ html.codex-dream-skin:is([data-dream-task-mode="ambient"], [data-dream-art-task-
 
 html.codex-dream-skin:is([data-dream-task-mode="ambient"], [data-dream-art-task-mode="ambient"], [data-dream-task-mode="banner"], [data-dream-art-task-mode="banner"])[data-dream-art-wide="true"][data-dream-route="task"]
   .composer-surface-chrome {
-  background: var(--ds-readable-gradient) !important;
+  background: var(--ds-composer-gradient, var(--ds-readable-gradient)) !important;
   border: 0 !important;
   box-shadow:
     0 10px 30px rgb(var(--ds-bg-rgb) / .20),
@@ -901,7 +923,7 @@ html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-
   outline-offset: 1px !important;
 }
 
-html.codex-dream-skin[data-dream-route="task"] body {
+html.codex-dream-skin[data-dream-route="task"]:not([data-dream-art-wide="true"]) body {
   background: rgb(var(--ds-bg-rgb) / 1) !important;
   background-image: none !important;
   background-attachment: scroll !important;
@@ -914,26 +936,41 @@ html.codex-dream-skin[data-dream-route="task"] .app-shell-left-panel {
   backdrop-filter: none !important;
 }
 
-html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell) {
+html.codex-dream-skin[data-dream-route="task"]:not([data-dream-art-wide="true"]) .main-surface:not(.dream-skin-home-shell) {
   background: rgb(var(--ds-bg-rgb) / .96) !important;
   box-shadow: none !important;
 }
 
-html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)::before,
-html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)::after {
+html.codex-dream-skin[data-dream-route="task"]:not([data-dream-art-wide="true"]) .main-surface:not(.dream-skin-home-shell)::before,
+html.codex-dream-skin[data-dream-route="task"]:not([data-dream-art-wide="true"]) .main-surface:not(.dream-skin-home-shell)::after {
   content: none !important;
 }
 
-html.codex-dream-skin[data-dream-route="task"] .composer-surface-chrome,
+html.codex-dream-skin[data-dream-route="task"] .composer-surface-chrome {
+  background: var(--ds-composer-gradient, var(--ds-readable-gradient)) !important;
+  background-image: none !important;
+  box-shadow: var(--ds-readable-shadow) !important;
+  backdrop-filter: var(--ds-readable-filter) !important;
+}
+
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell) article,
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   [class*="bg-token-foreground/5"],
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   .group.flex.min-w-0.flex-col:has(> [class*="_markdownContent"]) {
-  background: rgb(var(--ds-panel-rgb) / .88) !important;
-  background-image: none !important;
-  box-shadow: 0 0 0 1px rgb(var(--ds-neon-rgb) / .12) !important;
+  border-color: var(--ds-message-border) !important;
+  background: transparent !important;
+  background-image: var(--ds-glass-sheen), var(--ds-message-gradient) !important;
+  box-shadow: var(--ds-message-shadow) !important;
   backdrop-filter: none !important;
+}
+
+html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  .group.flex.min-w-0.flex-col:has(> [class*="_markdownContent"])
+  [class*="_markdownContent"] {
+  text-shadow:
+    0 1px 2px rgb(var(--ds-bg-rgb) / .72),
+    0 0 10px rgb(var(--ds-bg-rgb) / .30) !important;
 }
 
 html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
@@ -1055,21 +1092,23 @@ html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-
   text-decoration-line: none !important;
   font-weight: 850 !important;
   border-radius: 6px !important;
-  padding: 0 .18em !important;
+  padding: 0 .16em !important;
   outline: 1px solid transparent !important;
   outline-offset: 1px !important;
   background-image:
     linear-gradient(90deg,
-      rgb(var(--ds-link-rgb) / .18),
-      rgb(var(--ds-neon-rgb) / .08)),
+      rgb(var(--ds-link-rgb) / .24),
+      rgb(var(--ds-neon-rgb) / .10)),
     linear-gradient(90deg,
-      rgb(var(--ds-link-rgb) / .88),
-      rgb(var(--ds-neon-rgb) / .62)) !important;
-  background-size: 100% 62%, 100% 2px !important;
+      rgb(var(--ds-link-rgb) / .98),
+      rgb(var(--ds-neon-rgb) / .72)) !important;
+  background-size: 100% 48%, 100% 2px !important;
   background-repeat: no-repeat !important;
   background-position: 0 100%, 0 calc(100% - 1px) !important;
-  box-shadow: 0 0 0 1px rgb(var(--ds-link-rgb) / .13) inset !important;
-  text-shadow: none !important;
+  box-shadow: 0 0 0 1px rgb(var(--ds-link-rgb) / .10) inset !important;
+  text-shadow:
+    0 1px 2px rgb(var(--ds-bg-rgb) / .82),
+    0 0 8px rgb(var(--ds-link-rgb) / .18) !important;
   transition:
     background-color .12s cubic-bezier(.22, 1, .36, 1),
     background .12s cubic-bezier(.22, 1, .36, 1),
@@ -1718,7 +1757,7 @@ html.codex-dream-skin[data-dream-art-wide="true"] .main-surface.dream-skin-home-
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"] .composer-surface-chrome {
-  background: var(--ds-readable-gradient) !important;
+  background: var(--ds-composer-gradient, var(--ds-readable-gradient)) !important;
   border: 0 !important;
   box-shadow:
     0 10px 30px rgb(var(--ds-bg-rgb) / .20),
@@ -1866,6 +1905,24 @@ html.codex-dream-skin:is([data-dream-task-mode="ambient"], [data-dream-art-task-
   background: transparent !important;
 }
 
+/* Side chat and split work panes should stay immersive. They need a readable
+   work surface, but not an opaque wall that cuts the artwork in half. */
+html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"]
+  .main-surface:not(.dream-skin-home-shell)
+  :is([class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"])[class~="border-l"] {
+  border-left-color: rgb(var(--ds-neon-rgb) / .32) !important;
+  background-color: transparent !important;
+  background-image:
+    linear-gradient(135deg,
+      rgb(var(--ds-panel-rgb) / .30),
+      rgb(var(--ds-panel-2-rgb) / .18) 72%,
+      rgb(var(--ds-neon-rgb) / .06)) !important;
+  box-shadow:
+    inset 1px 0 rgb(var(--ds-neon-rgb) / .20),
+    -12px 0 28px rgb(var(--ds-bg-rgb) / .10) !important;
+  backdrop-filter: none !important;
+}
+
 html.codex-dream-skin[data-dream-art-wide="true"] .main-surface
   .app-shell-main-content-frame {
   border-top: 0 !important;
@@ -1996,6 +2053,23 @@ html.codex-dream-skin[data-dream-art-wide="true"]
 html.codex-dream-skin[data-dream-art-wide="true"]
   :is(button, [role="button"], svg) {
   filter: none !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"]
+  .main-surface:not(.dream-skin-home-shell)
+  :is([class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"])[class~="border-l"]:has(button):not([class~="h-full"]):not([class~="w-full"]) {
+  border-left-color: rgb(var(--ds-neon-rgb) / .32) !important;
+  background-color: transparent !important;
+  background-image:
+    linear-gradient(135deg,
+      rgb(var(--ds-panel-rgb) / .30),
+      rgb(var(--ds-panel-2-rgb) / .18) 72%,
+      rgb(var(--ds-neon-rgb) / .06)) !important;
+  box-shadow:
+    inset 1px 0 rgb(var(--ds-neon-rgb) / .20),
+    -12px 0 28px rgb(var(--ds-bg-rgb) / .10) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
 html.codex-dream-skin button[class~="bg-token-foreground"] {
