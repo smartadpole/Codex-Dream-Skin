@@ -1015,6 +1015,46 @@ html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-hom
     0 0 18px rgb(var(--ds-neon-rgb) / .14) !important;
 }
 
+html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  :is(
+    .thread-scroll-container .group.flex.min-w-0.flex-col,
+    .vertical-scroll-fade-mask,
+    .composer-surface-chrome,
+    [class*="bg-token-dropdown-background"],
+    [class~="border-l"]
+  ) {
+  transition:
+    border-color .12s cubic-bezier(.22, 1, .36, 1),
+    background-color .12s cubic-bezier(.22, 1, .36, 1),
+    background-image .12s cubic-bezier(.22, 1, .36, 1),
+    box-shadow .12s cubic-bezier(.22, 1, .36, 1) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  :is(
+    .vertical-scroll-fade-mask,
+    .composer-surface-chrome,
+    [class*="bg-token-dropdown-background"],
+    [class~="border-l"]
+  ):hover,
+html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  .composer-surface-chrome:focus-within {
+  border-color: rgb(var(--ds-link-rgb) / .48) !important;
+  background-color: transparent !important;
+  background-image:
+    var(--ds-glass-sheen),
+    linear-gradient(135deg,
+      rgb(var(--ds-panel-rgb) / .58),
+      rgb(var(--ds-panel-2-rgb) / .42) 72%,
+      rgb(var(--ds-neon-rgb) / .12)) !important;
+  box-shadow:
+    inset 0 1px rgb(var(--ds-text-rgb) / .14),
+    inset 0 0 0 1px rgb(var(--ds-link-rgb) / .08),
+    0 0 0 1px rgb(var(--ds-link-rgb) / .16),
+    0 0 20px rgb(var(--ds-link-rgb) / .16),
+    0 10px 24px rgb(var(--ds-bg-rgb) / .20) !important;
+}
+
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   .thread-scroll-container .group.flex.min-w-0.flex-col:hover
   [class*="_markdownContent"] {
@@ -1554,45 +1594,7 @@ html.codex-dream-skin[data-dream-art-wide="true"] .main-surface
   will-change: background, opacity;
 }
 
-.dream-skin-panel-focus {
-  position: fixed;
-  left: var(--ds-panel-focus-x, -9999px);
-  top: var(--ds-panel-focus-y, -9999px);
-  width: var(--ds-panel-focus-width, 0px);
-  height: var(--ds-panel-focus-height, 0px);
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  contain: layout style paint;
-  border-radius: var(--ds-panel-focus-radius, 18px);
-  border: 1px solid rgb(var(--ds-link-rgb) / .42);
-  background:
-    linear-gradient(135deg,
-      rgb(var(--ds-link-rgb) / .10),
-      rgb(var(--ds-neon-rgb) / .05) 48%,
-      transparent 100%);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / .18),
-    inset 0 0 0 1px rgb(255 255 255 / .05),
-    0 0 0 1px rgb(var(--ds-link-rgb) / .10),
-    0 0 28px rgb(var(--ds-link-rgb) / .18),
-    0 14px 34px rgb(0 0 0 / .18);
-  transition:
-    left .12s cubic-bezier(.22, 1, .36, 1),
-    top .12s cubic-bezier(.22, 1, .36, 1),
-    width .12s cubic-bezier(.22, 1, .36, 1),
-    height .12s cubic-bezier(.22, 1, .36, 1),
-    opacity .12s cubic-bezier(.22, 1, .36, 1),
-    border-color .12s cubic-bezier(.22, 1, .36, 1),
-    box-shadow .12s cubic-bezier(.22, 1, .36, 1);
-  will-change: left, top, width, height, opacity;
-}
-
 html.codex-dream-skin[data-dream-pointer="active"] .dream-skin-pointer-focus {
-  opacity: 1;
-}
-
-html.codex-dream-skin[data-dream-panel-focus="active"] .dream-skin-panel-focus {
   opacity: 1;
 }
 
@@ -1606,21 +1608,6 @@ html.codex-dream-skin[data-dream-route="task"] .dream-skin-pointer-focus {
       transparent 0 36%,
       rgb(var(--ds-bg-rgb) / .07) 72%,
       rgb(var(--ds-bg-rgb) / .12) 100%);
-}
-
-html.codex-dream-skin[data-dream-route="task"] .dream-skin-panel-focus {
-  border-color: rgb(var(--ds-link-rgb) / .50);
-  background:
-    linear-gradient(135deg,
-      rgb(var(--ds-link-rgb) / .12),
-      rgb(var(--ds-neon-rgb) / .06) 44%,
-      transparent 100%);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / .20),
-    inset 0 0 0 1px rgb(255 255 255 / .06),
-    0 0 0 1px rgb(var(--ds-link-rgb) / .13),
-    0 0 32px rgb(var(--ds-link-rgb) / .22),
-    0 16px 38px rgb(0 0 0 / .22);
 }
 
 .dream-skin-brand {

@@ -159,18 +159,20 @@ assert.match(
 );
 assert.match(
   css,
-  /\.dream-skin-panel-focus\s*\{[\s\S]{0,1800}left:\s*var\(--ds-panel-focus-x, -9999px\);[\s\S]{0,1800}will-change:\s*left, top, width, height, opacity;/,
-  "Hovered panels should use a single fixed focus frame driven by CSS variables.",
+  /data-dream-art-wide="true"\]\[data-dream-route="task"\] \.main-surface:not\(\.dream-skin-home-shell\)[\s\S]{0,900}\.composer-surface-chrome:focus-within\s*\{[\s\S]{0,520}0 0 20px rgb\(var\(--ds-link-rgb\) \/ \.16\)/,
+  "Hovered blocks should focus themselves with CSS-only block emphasis instead of a moving overlay.",
+);
+assert.ok(
+  !css.includes(".dream-skin-panel-focus") &&
+    !template.includes("pointerover") &&
+    !template.includes("pointerout") &&
+    !template.includes("panelFocusHandler"),
+  "Block focus must not use pointerover layout reads or a moving panel overlay.",
 );
 assert.match(
-  css,
-  /data-dream-panel-focus="active"\] \.dream-skin-panel-focus\s*\{[\s\S]{0,80}opacity:\s*1;/,
-  "Panel focus must stay idle until the pointer enters a focusable block.",
-);
-assert.match(
-  css,
-  /data-dream-route="task"\] \.dream-skin-panel-focus\s*\{[\s\S]{0,500}0 0 32px rgb\(var\(--ds-link-rgb\) \/ \.22\)/,
-  "Task panel focus should use a restrained but visible focus glow.",
+  template,
+  /STALE_PANEL_FOCUS_CLASS[\s\S]{0,260}data-dream-panel-focus[\s\S]{0,260}--ds-panel-focus-x/,
+  "Hot updates must remove stale moving panel focus DOM, attributes, and variables from the bad overlay build.",
 );
 const performanceGuardIndex = css.indexOf("/* Performance guard for complex full-window art.");
 const bodyAttachmentGuardIndex = css.indexOf(
@@ -762,39 +764,12 @@ assert.equal(defaultChrome.style.values.get("left"), "196px");
 assert.equal(defaultChrome.style.values.get("width"), "1084px");
 assert.equal(typeof defaults.windowListeners.get("pointermove"), "function");
 assert.equal(typeof defaults.windowListeners.get("pointerleave"), "function");
-assert.equal(typeof defaults.windowListeners.get("pointerover"), "function");
-assert.equal(typeof defaults.windowListeners.get("pointerout"), "function");
 defaults.windowListeners.get("pointermove")({ clientX: 444.4, clientY: 211.6 });
 assert.equal(defaults.rootStyle.values.get("--ds-pointer-x"), "444px");
 assert.equal(defaults.rootStyle.values.get("--ds-pointer-y"), "212px");
 assert.equal(defaults.attributes.get("data-dream-pointer"), "active");
-const panelFocusNode = {
-  id: "",
-  closest(selector) { return selector === "#codex-dream-skin-chrome" ? null : null; },
-  contains(target) { return target === panelFocusChild; },
-  getBoundingClientRect() {
-    defaultMetrics.layoutReads += 0;
-    return { left: 318.2, top: 146.7, width: 612.5, height: 92.4 };
-  },
-};
-const panelFocusChild = {};
-defaults.windowListeners.get("pointerover")({
-  target: {
-    closest(selector) {
-      return selector.includes(".thread-scroll-container") ? panelFocusNode : null;
-    },
-  },
-});
-assert.equal(defaults.rootStyle.values.get("--ds-panel-focus-x"), "318px");
-assert.equal(defaults.rootStyle.values.get("--ds-panel-focus-y"), "147px");
-assert.equal(defaults.rootStyle.values.get("--ds-panel-focus-width"), "613px");
-assert.equal(defaults.rootStyle.values.get("--ds-panel-focus-height"), "92px");
-assert.equal(defaults.rootStyle.values.get("--ds-panel-focus-radius"), "18px");
-assert.equal(defaults.attributes.get("data-dream-panel-focus"), "active");
 defaults.windowListeners.get("pointerleave")();
 assert.equal(defaults.attributes.get("data-dream-pointer"), "idle");
-defaults.windowListeners.get("pointerout")({ relatedTarget: null });
-assert.equal(defaults.attributes.get("data-dream-panel-focus"), "idle");
 
 // Auto appearance must continue following the native shell after the skin is
 // already installed. The fixture makes the injected root color-scheme win
@@ -954,7 +929,6 @@ assert.equal(explicit.window.__CODEX_DREAM_SKIN_STATE__.cleanup(), true);
 assert.equal(explicit.root.classList.contains("codex-dream-skin"), false);
 assert.equal(explicit.attributes.has("data-dream-shell"), false);
 assert.equal(explicit.attributes.has("data-dream-pointer"), false);
-assert.equal(explicit.attributes.has("data-dream-panel-focus"), false);
 assert.equal(explicit.attributes.has("data-dream-art-safe-area"), false);
 assert.equal(explicit.attributes.has("data-dream-art-task-mode"), false);
 assert.equal(explicit.rootStyle.values.has("--dream-art-position"), false);
@@ -962,8 +936,6 @@ assert.equal(explicit.nodes.has("codex-dream-skin-style"), false);
 assert.equal(explicit.nodes.has("codex-dream-skin-chrome"), false);
 assert.equal(explicit.windowListeners.has("pointermove"), false);
 assert.equal(explicit.windowListeners.has("pointerleave"), false);
-assert.equal(explicit.windowListeners.has("pointerover"), false);
-assert.equal(explicit.windowListeners.has("pointerout"), false);
 assert.deepEqual(explicit.revokedUrls, ["blob:fixture-1"]);
 await Promise.resolve();
 await Promise.resolve();
