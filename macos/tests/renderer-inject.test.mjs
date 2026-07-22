@@ -403,8 +403,13 @@ assert.doesNotMatch(
 );
 assert.match(
   css,
-  /data-dream-route="task"[\s\S]{0,320}\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover\s*\{[\s\S]{0,420}border-color:\s*rgb\(var\(--ds-link-rgb\) \/ \.66\) !important;[\s\S]{0,520}0 0 22px rgb\(var\(--ds-link-rgb\) \/ \.20\)[\s\S]{0,180}0 0 16px rgb\(var\(--ds-neon-rgb\) \/ \.12\) !important;/,
-  "Task message hover should use a cheap direct selector with a stronger collision-color highlight.",
+  /data-dream-route="task"[\s\S]{0,320}\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover\s*\{[\s\S]{0,220}color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,420}rgb\(var\(--ds-link-rgb\) \/ \.88\)[\s\S]{0,180}rgb\(var\(--ds-neon-rgb\) \/ \.54\)[\s\S]{0,520}0 0 24px rgb\(var\(--ds-link-rgb\) \/ \.28\)[\s\S]{0,180}0 0 18px rgb\(var\(--ds-neon-rgb\) \/ \.16\) !important;/,
+  "Task message hover should use a cheap direct selector with inverse text and a strong collision-color background.",
+);
+assert.match(
+  css,
+  /article:hover,[\s\S]{0,220}\[class\*="bg-token-foreground\/5"\]:hover,[\s\S]{0,220}\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover[\s\S]{0,520}\[class\*="_markdownContent"\]\s+\*[\s\S]{0,620}color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,120}-webkit-text-fill-color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,120}text-shadow:\s*none !important;/,
+  "Hovered conversation blocks must invert markdown text instead of leaving white glowing text on the collision background.",
 );
 assert.doesNotMatch(
   css,

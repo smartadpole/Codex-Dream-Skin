@@ -996,20 +996,65 @@ html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-hom
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   .thread-scroll-container .group.flex.min-w-0.flex-col:hover {
   border-color: rgb(var(--ds-link-rgb) / .66) !important;
+  color: var(--ds-link-hover) !important;
   background-image:
     var(--ds-glass-sheen),
     linear-gradient(135deg,
-      rgb(var(--ds-link-rgb) / .18),
-      rgb(var(--ds-panel-rgb) / .58) 34%,
-      rgb(var(--ds-panel-2-rgb) / .40) 72%,
-      rgb(var(--ds-neon-rgb) / .16)) !important;
+      rgb(var(--ds-link-rgb) / .88),
+      rgb(255 244 199 / .76) 38%,
+      rgb(var(--ds-neon-rgb) / .54) 100%) !important;
   box-shadow:
     var(--ds-message-shadow),
-    inset 0 1px rgb(var(--ds-text-rgb) / .14),
-    inset 0 0 0 1px rgb(var(--ds-neon-rgb) / .10),
-    0 0 0 1px rgb(var(--ds-link-rgb) / .20),
-    0 0 22px rgb(var(--ds-link-rgb) / .20),
-    0 0 16px rgb(var(--ds-neon-rgb) / .12) !important;
+    inset 0 1px rgb(255 255 255 / .30),
+    inset 0 0 0 1px rgb(var(--ds-neon-rgb) / .26),
+    0 0 0 1px rgb(var(--ds-link-rgb) / .26),
+    0 0 24px rgb(var(--ds-link-rgb) / .28),
+    0 0 18px rgb(var(--ds-neon-rgb) / .16) !important;
+}
+
+html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  :is(
+    article:hover,
+    [class*="bg-token-foreground/5"]:hover,
+    .thread-scroll-container .group.flex.min-w-0.flex-col:hover
+  )
+  :is(
+    [class*="_markdownContent"],
+    [class*="_markdownContent"] *,
+    [class*="text-token-"],
+    p,
+    li,
+    span,
+    strong,
+    em,
+    b,
+    i,
+    code,
+    pre,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    blockquote,
+    td,
+    th
+  ) {
+  color: var(--ds-link-hover) !important;
+  -webkit-text-fill-color: var(--ds-link-hover) !important;
+  text-shadow: none !important;
+}
+
+html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  :is(
+    article:hover,
+    [class*="bg-token-foreground/5"]:hover,
+    .thread-scroll-container .group.flex.min-w-0.flex-col:hover
+  )
+  :is(code, pre) {
+  border-color: rgb(var(--ds-bg-rgb) / .20) !important;
+  background: rgb(var(--ds-bg-rgb) / .10) !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
@@ -1057,9 +1102,9 @@ html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"] .main
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   .thread-scroll-container .group.flex.min-w-0.flex-col:hover
   [class*="_markdownContent"] {
-  text-shadow:
-    0 1px 2px rgb(var(--ds-bg-rgb) / .82),
-    0 0 12px rgb(var(--ds-bg-rgb) / .36) !important;
+  color: var(--ds-link-hover) !important;
+  -webkit-text-fill-color: var(--ds-link-hover) !important;
+  text-shadow: none !important;
 }
 
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
