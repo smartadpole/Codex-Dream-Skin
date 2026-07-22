@@ -91,6 +91,21 @@
   if (previous?.pointerFocusFrame != null && typeof cancelAnimationFrame === "function") {
     cancelAnimationFrame(previous.pointerFocusFrame);
   }
+  if (previous?.composerScrollFrame != null && typeof cancelAnimationFrame === "function") {
+    cancelAnimationFrame(previous.composerScrollFrame);
+  }
+  for (const timer of previous?.composerScrollTimers || []) clearTimeout(timer);
+  if (previous?.composerScrollTimer) clearTimeout(previous.composerScrollTimer);
+  if (previous?.composerInputRememberHandler) {
+    document.removeEventListener("pointerdown", previous.composerInputRememberHandler, true);
+    document.removeEventListener("keydown", previous.composerInputRememberHandler, true);
+    document.removeEventListener("beforeinput", previous.composerInputRememberHandler, true);
+  }
+  if (previous?.composerInputRestoreHandler) {
+    document.removeEventListener("keyup", previous.composerInputRestoreHandler, true);
+    document.removeEventListener("input", previous.composerInputRestoreHandler, true);
+    document.removeEventListener("compositionend", previous.composerInputRestoreHandler, true);
+  }
 
   const cssString = (value) => JSON.stringify(String(value ?? ""));
 
@@ -654,13 +669,13 @@
     return false;
   });
 
-  const nodeTouchesComposerInput = (node) => {
+  const COMPOSER_INPUT_SELECTOR = '.composer-surface-chrome :is(.ProseMirror, [contenteditable="true"], textarea, input)';
+  const composerInputElement = (node) => {
     const element = node?.nodeType === 1 ? node : node?.parentElement;
-    if (!element || typeof element.closest !== "function") return false;
-    return Boolean(element.closest(
-      '.composer-surface-chrome :is(.ProseMirror, [contenteditable="true"], textarea, input)',
-    ));
+    if (!element || typeof element.closest !== "function") return null;
+    return element.closest(COMPOSER_INPUT_SELECTOR);
   };
+  const nodeTouchesComposerInput = (node) => Boolean(composerInputElement(node));
 
   const mutationsOnlyTouchComposerInput = (records) => records.length > 0 && records.every((record) => {
     if (!nodeTouchesComposerInput(record.target)) return false;
@@ -955,6 +970,21 @@
     if (state?.pointerFocusFrame != null && typeof cancelAnimationFrame === "function") {
       cancelAnimationFrame(state.pointerFocusFrame);
     }
+    if (state?.composerScrollFrame != null && typeof cancelAnimationFrame === "function") {
+      cancelAnimationFrame(state.composerScrollFrame);
+    }
+    for (const timer of state?.composerScrollTimers || []) clearTimeout(timer);
+    if (state?.composerScrollTimer) clearTimeout(state.composerScrollTimer);
+    if (state?.composerInputRememberHandler) {
+      document.removeEventListener("pointerdown", state.composerInputRememberHandler, true);
+      document.removeEventListener("keydown", state.composerInputRememberHandler, true);
+      document.removeEventListener("beforeinput", state.composerInputRememberHandler, true);
+    }
+    if (state?.composerInputRestoreHandler) {
+      document.removeEventListener("keyup", state.composerInputRestoreHandler, true);
+      document.removeEventListener("input", state.composerInputRestoreHandler, true);
+      document.removeEventListener("compositionend", state.composerInputRestoreHandler, true);
+    }
     if (state?.artUrl) URL.revokeObjectURL(state.artUrl);
     delete window[STATE_KEY];
     return true;
@@ -987,7 +1017,67 @@
     const delay = layout ? 160 : 240;
     scheduler.timeout = setTimeout(flushScheduledEnsure, delay);
   };
-  const scrollButtonHandler = () => scheduleScrollBottomSync();
+  let composerScrollTop = null;
+  let composerScrollUntil = 0;
+  let composerScrollFrame = null;
+  let composerScrollTimers = [];
+  const clearComposerScrollTimers = () => {
+    for (const timer of composerScrollTimers) clearTimeout(timer);
+    composerScrollTimers = [];
+  };
+  const restoreComposerScroll = () => {
+    composerScrollFrame = null;
+    const scroller = document.querySelector(".thread-scroll-container");
+    if (!scroller || composerScrollTop == null) return;
+    if (now() > composerScrollUntil && !composerInputElement(document.activeElement)) return;
+    if (Math.abs(scroller.scrollTop - composerScrollTop) > 0.5) {
+      scroller.scrollTop = composerScrollTop;
+    }
+  };
+  const scheduleComposerScrollRestore = () => {
+    if (typeof requestAnimationFrame === "function" && composerScrollFrame == null) {
+      composerScrollFrame = requestAnimationFrame(restoreComposerScroll);
+    } else if (composerScrollFrame == null) {
+      restoreComposerScroll();
+    }
+    clearComposerScrollTimers();
+    composerScrollTimers = [32, 96, 180, 300, 480, 760].map((delay) => {
+      const timer = setTimeout(() => {
+        restoreComposerScroll();
+        composerScrollTimers = composerScrollTimers.filter((item) => item !== timer);
+        const state = window[STATE_KEY];
+        if (state?.installToken === installToken) state.composerScrollTimers = composerScrollTimers;
+      }, delay);
+      return timer;
+    });
+    const state = window[STATE_KEY];
+    if (state?.installToken === installToken) {
+      state.composerScrollFrame = composerScrollFrame;
+      state.composerScrollTimers = composerScrollTimers;
+      state.composerScrollTop = composerScrollTop;
+    }
+  };
+  const composerInputRememberHandler = (event) => {
+    if (!composerInputElement(event.target)) return;
+    const scroller = document.querySelector(".thread-scroll-container");
+    if (!scroller) return;
+    composerScrollTop = scroller.scrollTop;
+    composerScrollUntil = now() + 900;
+    const state = window[STATE_KEY];
+    if (state?.installToken === installToken) {
+      state.composerScrollTop = composerScrollTop;
+      state.composerScrollUntil = composerScrollUntil;
+    }
+  };
+  const composerInputRestoreHandler = (event) => {
+    if (!composerInputElement(event.target)) return;
+    if (composerScrollTop == null) composerInputRememberHandler(event);
+    scheduleComposerScrollRestore();
+  };
+  const scrollButtonHandler = () => {
+    restoreComposerScroll();
+    scheduleScrollBottomSync();
+  };
   const sidebarPointerHandler = (event) => {
     const item = sidebarThreadItemFromEvent(event);
     if (item) {
@@ -1037,6 +1127,12 @@
     scrollButtonHandler,
     scrollContainer: null,
     scrollButtonFrame,
+    composerScrollFrame,
+    composerScrollTimers,
+    composerScrollTop,
+    composerScrollUntil,
+    composerInputRememberHandler,
+    composerInputRestoreHandler,
     currentSidebarSyncPending,
     sidebarPointerHandler,
     sidebarPanel: null,
@@ -1069,6 +1165,12 @@
   const timer = setInterval(() => ensure(), 15000);
   window[STATE_KEY].timer = timer;
   window.addEventListener("resize", resizeHandler, { passive: true });
+  document.addEventListener("pointerdown", composerInputRememberHandler, true);
+  document.addEventListener("keydown", composerInputRememberHandler, true);
+  document.addEventListener("beforeinput", composerInputRememberHandler, true);
+  document.addEventListener("keyup", composerInputRestoreHandler, true);
+  document.addEventListener("input", composerInputRestoreHandler, true);
+  document.addEventListener("compositionend", composerInputRestoreHandler, true);
   if (mediaHandler && mediaQuery) {
     mediaQuery.addEventListener("change", mediaHandler);
   }

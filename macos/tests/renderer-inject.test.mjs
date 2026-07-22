@@ -313,17 +313,17 @@ assert.match(
 );
 assert.match(
   css,
-  /\.thread-scroll-container\s*\{[\s\S]{0,120}--thread-scroll-padding-bottom:\s*220px !important;/,
+  /\.thread-scroll-container\s*\{[\s\S]{0,120}--thread-scroll-padding-bottom:\s*132px !important;/,
   "Task routes must reserve bottom scroll padding so the composer does not cover the last response.",
 );
 assert.match(
   css,
-  /data-dream-art-wide="true"\]\[data-dream-route="task"\][\s\S]{0,120}\.thread-scroll-container\s*\{[\s\S]{0,80}scroll-padding-bottom:\s*220px !important;/,
+  /data-dream-art-wide="true"\]\[data-dream-route="task"\][\s\S]{0,120}\.thread-scroll-container\s*\{[\s\S]{0,80}scroll-padding-bottom:\s*132px !important;/,
   "The scroll container must expose a computed bottom scroll padding, not just a CSS variable.",
 );
 assert.match(
   css,
-  /> div > \[class\*="pb-8"\]\s*\{[\s\S]{0,80}padding-bottom:\s*220px !important;/,
+  /> div > \[class\*="pb-8"\]\s*\{[\s\S]{0,80}padding-bottom:\s*132px !important;/,
   "The thread content column must keep a real bottom spacer behind the sticky composer.",
 );
 assert.match(
@@ -528,6 +528,7 @@ function createFixture(theme, {
   const observers = [];
   const resizeObservers = [];
   const windowListeners = new Map();
+  const documentListeners = new Map();
   const timers = new Map();
   let nextTimer = 1;
   let nextBlob = 1;
@@ -558,6 +559,19 @@ function createFixture(theme, {
     classList: createClassList(),
     getBoundingClientRect() {
       return { ...shellBox };
+    },
+  };
+  const threadScroller = {
+    scrollTop: -1200,
+    addEventListener() {},
+    removeEventListener() {},
+    querySelector() { return null; },
+  };
+  const composerInput = {
+    nodeType: 1,
+    parentElement: null,
+    closest(selector) {
+      return selector.includes(".composer-surface-chrome") ? composerInput : null;
     },
   };
 
@@ -605,9 +619,14 @@ function createFixture(theme, {
     getElementById(id) { return nodes.get(id) ?? null; },
     querySelector(selector) {
       if (selector === "main.main-surface" || selector === "main") return shellMain;
+      if (selector === ".thread-scroll-container") return threadScroller;
       return null;
     },
     querySelectorAll() { return []; },
+    addEventListener(type, handler) { documentListeners.set(type, handler); },
+    removeEventListener(type, handler) {
+      if (documentListeners.get(type) === handler) documentListeners.delete(type);
+    },
   };
   const mediaQuery = {
     matches: false,
@@ -698,6 +717,8 @@ function createFixture(theme, {
     bodyAttributes,
     context,
     flushTimers,
+    composerInput,
+    documentListeners,
     nodes,
     observers,
     payload: payloadFor(theme),
@@ -708,6 +729,7 @@ function createFixture(theme, {
     rootStyle,
     shellBox,
     timers,
+    threadScroller,
     window,
     windowListeners,
     setNativeShell(value) { fixtureShell = value; },
@@ -779,9 +801,27 @@ assert.equal(defaultChrome.style.values.get("left"), "196px");
 assert.equal(defaultChrome.style.values.get("width"), "1084px");
 assert.equal(defaults.windowListeners.has("pointermove"), false);
 assert.equal(defaults.windowListeners.has("pointerleave"), false);
+assert.equal(defaults.documentListeners.has("beforeinput"), true);
+assert.equal(defaults.documentListeners.has("input"), true);
 assert.equal(defaults.attributes.has("data-dream-pointer"), false);
 assert.equal(defaults.rootStyle.values.has("--ds-pointer-x"), false);
 assert.equal(defaults.rootStyle.values.has("--ds-pointer-y"), false);
+defaults.threadScroller.scrollTop = -1200;
+defaults.documentListeners.get("beforeinput")({ target: defaults.composerInput });
+defaults.threadScroller.scrollTop = -1062;
+defaults.documentListeners.get("input")({ target: defaults.composerInput });
+assert.equal(
+  defaults.threadScroller.scrollTop,
+  -1200,
+  "Composer typing should preserve the current thread scroll position immediately.",
+);
+defaults.threadScroller.scrollTop = -924;
+defaults.flushTimers(180);
+assert.equal(
+  defaults.threadScroller.scrollTop,
+  -1200,
+  "Composer typing should also restore delayed editor scroll nudges.",
+);
 
 // Auto appearance must continue following the native shell after the skin is
 // already installed. The fixture makes the injected root color-scheme win

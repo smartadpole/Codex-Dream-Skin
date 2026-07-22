@@ -1946,12 +1946,12 @@ html.codex-dream-skin .composer-surface-chrome {
 }
 
 html.codex-dream-skin[data-dream-route="task"] .thread-scroll-container {
-  --thread-scroll-padding-bottom: 220px !important;
+  --thread-scroll-padding-bottom: 132px !important;
 }
 
 html.codex-dream-skin[data-dream-route="task"] .thread-scroll-container
   > div > [class*="pb-8"] {
-  padding-bottom: 220px !important;
+  padding-bottom: 132px !important;
 }
 
 html.codex-dream-skin[data-dream-route="task"] .thread-scroll-container
@@ -2414,7 +2414,7 @@ html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"]
 
 html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"]
   .thread-scroll-container {
-  scroll-padding-bottom: 220px !important;
+  scroll-padding-bottom: 132px !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"]
