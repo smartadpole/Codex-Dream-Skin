@@ -995,18 +995,21 @@ html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-hom
   [class*="bg-token-foreground/5"]:hover,
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   .thread-scroll-container .group.flex.min-w-0.flex-col:hover {
-  border-color: rgb(var(--ds-neon-rgb) / .48) !important;
+  border-color: rgb(var(--ds-link-rgb) / .66) !important;
   background-image:
     var(--ds-glass-sheen),
     linear-gradient(135deg,
-      rgb(var(--ds-panel-rgb) / .56),
-      rgb(var(--ds-panel-2-rgb) / .38) 72%,
-      rgb(var(--ds-neon-rgb) / .14)) !important;
+      rgb(var(--ds-link-rgb) / .18),
+      rgb(var(--ds-panel-rgb) / .58) 34%,
+      rgb(var(--ds-panel-2-rgb) / .40) 72%,
+      rgb(var(--ds-neon-rgb) / .16)) !important;
   box-shadow:
     var(--ds-message-shadow),
-    inset 0 1px rgb(var(--ds-text-rgb) / .10),
-    0 0 0 1px rgb(var(--ds-neon-rgb) / .18),
-    0 0 18px rgb(var(--ds-neon-rgb) / .14) !important;
+    inset 0 1px rgb(var(--ds-text-rgb) / .14),
+    inset 0 0 0 1px rgb(var(--ds-neon-rgb) / .10),
+    0 0 0 1px rgb(var(--ds-link-rgb) / .20),
+    0 0 22px rgb(var(--ds-link-rgb) / .20),
+    0 0 16px rgb(var(--ds-neon-rgb) / .12) !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
@@ -1033,19 +1036,21 @@ html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"] .main
   ):hover,
 html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   .composer-surface-chrome:focus-within {
-  border-color: rgb(var(--ds-link-rgb) / .48) !important;
+  border-color: rgb(var(--ds-link-rgb) / .64) !important;
   background-color: transparent !important;
   background-image:
     var(--ds-glass-sheen),
     linear-gradient(135deg,
-      rgb(var(--ds-panel-rgb) / .58),
+      rgb(var(--ds-link-rgb) / .16),
+      rgb(var(--ds-panel-rgb) / .58) 34%,
       rgb(var(--ds-panel-2-rgb) / .42) 72%,
-      rgb(var(--ds-neon-rgb) / .12)) !important;
+      rgb(var(--ds-neon-rgb) / .16)) !important;
   box-shadow:
     inset 0 1px rgb(var(--ds-text-rgb) / .14),
-    inset 0 0 0 1px rgb(var(--ds-link-rgb) / .08),
-    0 0 0 1px rgb(var(--ds-link-rgb) / .16),
-    0 0 20px rgb(var(--ds-link-rgb) / .16),
+    inset 0 0 0 1px rgb(var(--ds-neon-rgb) / .10),
+    0 0 0 1px rgb(var(--ds-link-rgb) / .20),
+    0 0 24px rgb(var(--ds-link-rgb) / .20),
+    0 0 16px rgb(var(--ds-neon-rgb) / .12),
     0 10px 24px rgb(var(--ds-bg-rgb) / .20) !important;
 }
 
@@ -1953,6 +1958,7 @@ html.codex-dream-skin[data-dream-route="task"] .thread-scroll-container
   > div > .sticky.bottom-0 {
   z-index: 32 !important;
   padding-top: 22px !important;
+  overflow-anchor: none !important;
   background-image: linear-gradient(180deg,
     rgb(var(--ds-bg-rgb) / 0),
     rgb(var(--ds-bg-rgb) / .26) 28%,

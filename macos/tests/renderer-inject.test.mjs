@@ -150,7 +150,7 @@ assert.ok(
 );
 assert.match(
   css,
-  /data-dream-art-wide="true"\]\[data-dream-route="task"\] \.main-surface:not\(\.dream-skin-home-shell\)[\s\S]{0,900}\.composer-surface-chrome:focus-within\s*\{[\s\S]{0,520}0 0 20px rgb\(var\(--ds-link-rgb\) \/ \.16\)/,
+  /data-dream-art-wide="true"\]\[data-dream-route="task"\] \.main-surface:not\(\.dream-skin-home-shell\)[\s\S]{0,900}\.composer-surface-chrome:focus-within\s*\{[\s\S]{0,520}0 0 24px rgb\(var\(--ds-link-rgb\) \/ \.20\)[\s\S]{0,180}0 0 16px rgb\(var\(--ds-neon-rgb\) \/ \.12\)/,
   "Hovered blocks should focus themselves with CSS-only block emphasis instead of a moving overlay.",
 );
 assert.ok(
@@ -213,8 +213,8 @@ assert.match(
 );
 assert.match(
   template,
-  /const observer = new MutationObserver\(\(records\) => \{[\s\S]{0,180}mutationsTouchRouteState\(records\)[\s\S]{0,120}scheduleScrollBottomSync\(\)/,
-  "Streaming message mutations should avoid a full route/sidebar sync when only the thread body changes.",
+  /const observer = new MutationObserver\(\(records\) => \{[\s\S]{0,120}mutationsOnlyTouchComposerInput\(records\)[\s\S]{0,180}mutationsTouchRouteState\(records\)[\s\S]{0,120}scheduleScrollBottomSync\(\)/,
+  "Composer typing mutations should not trigger route/sidebar sync or bottom-scroll sync.",
 );
 assert.doesNotMatch(
   template,
@@ -333,6 +333,11 @@ assert.match(
 );
 assert.match(
   css,
+  /\.thread-scroll-container[\s\S]{0,140}>\s*div\s*>\s*\.sticky\.bottom-0\s*\{[\s\S]{0,140}overflow-anchor:\s*none !important;/,
+  "The sticky composer must opt out of scroll anchoring so typing does not move the conversation.",
+);
+assert.match(
+  css,
   /\.thread-scroll-container \.composer-surface-chrome\[class\*="bg-token-input-background"\]\s*\{[\s\S]{0,260}rgb\(var\(--ds-panel-rgb\) \/ \.84\),[\s\S]{0,120}rgb\(var\(--ds-panel-2-rgb\) \/ \.72\)/,
   "Task composer must include a hard readable gradient when native input tokens win over variables.",
 );
@@ -398,8 +403,8 @@ assert.doesNotMatch(
 );
 assert.match(
   css,
-  /data-dream-route="task"[\s\S]{0,320}\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover\s*\{[\s\S]{0,420}border-color:\s*rgb\(var\(--ds-neon-rgb\) \/ \.48\) !important;[\s\S]{0,520}0 0 18px rgb\(var\(--ds-neon-rgb\) \/ \.14\) !important;/,
-  "Task message hover should use a cheap direct selector with a readable highlight.",
+  /data-dream-route="task"[\s\S]{0,320}\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover\s*\{[\s\S]{0,420}border-color:\s*rgb\(var\(--ds-link-rgb\) \/ \.66\) !important;[\s\S]{0,520}0 0 22px rgb\(var\(--ds-link-rgb\) \/ \.20\)[\s\S]{0,180}0 0 16px rgb\(var\(--ds-neon-rgb\) \/ \.12\) !important;/,
+  "Task message hover should use a cheap direct selector with a stronger collision-color highlight.",
 );
 assert.doesNotMatch(
   css,
@@ -730,6 +735,20 @@ assert.equal(
   defaults.window.__CODEX_DREAM_SKIN_STATE__.scheduler.timeout,
   null,
   "Thread-only or empty mutation bursts should not schedule a route ensure.",
+);
+const composerInputMutationNode = {
+  nodeType: 1,
+  closest(selector) {
+    return selector.includes('.composer-surface-chrome :is(.ProseMirror, [contenteditable="true"], textarea, input)')
+      ? this
+      : null;
+  },
+};
+defaults.observers[0].callback([{ target: composerInputMutationNode, addedNodes: [], removedNodes: [] }]);
+assert.equal(
+  defaults.window.__CODEX_DREAM_SKIN_STATE__.scheduler.timeout,
+  null,
+  "Composer input mutations must not schedule scroll sync or route ensure.",
 );
 const sidebarMutationNode = {
   nodeType: 1,

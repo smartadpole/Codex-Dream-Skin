@@ -654,6 +654,25 @@
     return false;
   });
 
+  const nodeTouchesComposerInput = (node) => {
+    const element = node?.nodeType === 1 ? node : node?.parentElement;
+    if (!element || typeof element.closest !== "function") return false;
+    return Boolean(element.closest(
+      '.composer-surface-chrome :is(.ProseMirror, [contenteditable="true"], textarea, input)',
+    ));
+  };
+
+  const mutationsOnlyTouchComposerInput = (records) => records.length > 0 && records.every((record) => {
+    if (!nodeTouchesComposerInput(record.target)) return false;
+    for (const node of record.addedNodes || []) {
+      if (!nodeTouchesComposerInput(node)) return false;
+    }
+    for (const node of record.removedNodes || []) {
+      if (node?.nodeType === 1 && !nodeTouchesComposerInput(node)) return false;
+    }
+    return true;
+  });
+
   const syncCurrentSidebarThread = () => {
     const title = currentTaskTitle();
     const items = [...document.querySelectorAll('.app-shell-left-panel [role="list"] > [role="listitem"]')]
@@ -982,6 +1001,7 @@
     }
   };
   const observer = new MutationObserver((records) => {
+    if (mutationsOnlyTouchComposerInput(records)) return;
     if (mutationsTouchRouteState(records)) scheduleEnsure({ route: true });
     else scheduleScrollBottomSync();
   });
