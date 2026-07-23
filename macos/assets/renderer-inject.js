@@ -99,11 +99,15 @@
   if (previous?.composerInputRememberHandler) {
     document.removeEventListener("pointerdown", previous.composerInputRememberHandler, true);
     document.removeEventListener("keydown", previous.composerInputRememberHandler, true);
+    document.removeEventListener("paste", previous.composerInputRememberHandler, true);
+    document.removeEventListener("cut", previous.composerInputRememberHandler, true);
+    document.removeEventListener("compositionstart", previous.composerInputRememberHandler, true);
     document.removeEventListener("beforeinput", previous.composerInputRememberHandler, true);
   }
   if (previous?.composerInputRestoreHandler) {
     document.removeEventListener("keyup", previous.composerInputRestoreHandler, true);
     document.removeEventListener("input", previous.composerInputRestoreHandler, true);
+    document.removeEventListener("compositionupdate", previous.composerInputRestoreHandler, true);
     document.removeEventListener("compositionend", previous.composerInputRestoreHandler, true);
   }
 
@@ -978,11 +982,15 @@
     if (state?.composerInputRememberHandler) {
       document.removeEventListener("pointerdown", state.composerInputRememberHandler, true);
       document.removeEventListener("keydown", state.composerInputRememberHandler, true);
+      document.removeEventListener("paste", state.composerInputRememberHandler, true);
+      document.removeEventListener("cut", state.composerInputRememberHandler, true);
+      document.removeEventListener("compositionstart", state.composerInputRememberHandler, true);
       document.removeEventListener("beforeinput", state.composerInputRememberHandler, true);
     }
     if (state?.composerInputRestoreHandler) {
       document.removeEventListener("keyup", state.composerInputRestoreHandler, true);
       document.removeEventListener("input", state.composerInputRestoreHandler, true);
+      document.removeEventListener("compositionupdate", state.composerInputRestoreHandler, true);
       document.removeEventListener("compositionend", state.composerInputRestoreHandler, true);
     }
     if (state?.artUrl) URL.revokeObjectURL(state.artUrl);
@@ -1035,6 +1043,7 @@
     }
   };
   const scheduleComposerScrollRestore = () => {
+    restoreComposerScroll();
     if (typeof requestAnimationFrame === "function" && composerScrollFrame == null) {
       composerScrollFrame = requestAnimationFrame(restoreComposerScroll);
     } else if (composerScrollFrame == null) {
@@ -1091,7 +1100,10 @@
     }
   };
   const observer = new MutationObserver((records) => {
-    if (mutationsOnlyTouchComposerInput(records)) return;
+    if (mutationsOnlyTouchComposerInput(records)) {
+      if (composerInputElement(document.activeElement)) scheduleComposerScrollRestore();
+      return;
+    }
     if (mutationsTouchRouteState(records)) scheduleEnsure({ route: true });
     else scheduleScrollBottomSync();
   });
@@ -1167,6 +1179,10 @@
   window.addEventListener("resize", resizeHandler, { passive: true });
   document.addEventListener("pointerdown", composerInputRememberHandler, true);
   document.addEventListener("keydown", composerInputRememberHandler, true);
+  document.addEventListener("paste", composerInputRememberHandler, true);
+  document.addEventListener("cut", composerInputRememberHandler, true);
+  document.addEventListener("compositionstart", composerInputRememberHandler, true);
+  document.addEventListener("compositionupdate", composerInputRestoreHandler, true);
   document.addEventListener("beforeinput", composerInputRememberHandler, true);
   document.addEventListener("keyup", composerInputRestoreHandler, true);
   document.addEventListener("input", composerInputRestoreHandler, true);

@@ -213,8 +213,8 @@ assert.match(
 );
 assert.match(
   template,
-  /const observer = new MutationObserver\(\(records\) => \{[\s\S]{0,120}mutationsOnlyTouchComposerInput\(records\)[\s\S]{0,180}mutationsTouchRouteState\(records\)[\s\S]{0,120}scheduleScrollBottomSync\(\)/,
-  "Composer typing mutations should not trigger route/sidebar sync or bottom-scroll sync.",
+  /const observer = new MutationObserver\(\(records\) => \{[\s\S]{0,180}mutationsOnlyTouchComposerInput\(records\)[\s\S]{0,180}scheduleComposerScrollRestore\(\)[\s\S]{0,180}mutationsTouchRouteState\(records\)[\s\S]{0,120}scheduleScrollBottomSync\(\)/,
+  "Composer typing mutations should restore the current scroll without triggering route/sidebar sync or bottom-scroll sync.",
 );
 assert.doesNotMatch(
   template,
@@ -353,8 +353,8 @@ assert.match(
 );
 assert.match(
   css,
-  /\.thread-scroll-container[\s\S]{0,180}scrollbar-color:\s*var\(--ds-scrollbar-thumb\) var\(--ds-scrollbar-track\) !important;/,
-  "Thread scroll containers must expose a visible themed scrollbar.",
+  /--ds-scrollbar-track:\s*transparent !important;[\s\S]*\.thread-scroll-container[\s\S]{0,180}scrollbar-color:\s*var\(--ds-scrollbar-thumb\) var\(--ds-scrollbar-track\) !important;[\s\S]*::-webkit-scrollbar-track\s*\{[\s\S]{0,80}background:\s*transparent !important;[\s\S]*background-clip:\s*content-box !important;[\s\S]{0,120}box-shadow:\s*none !important;/,
+  "Thread scrollbars must keep a visible thumb without a heavy track capsule.",
 );
 assert.doesNotMatch(
   css,
@@ -443,6 +443,16 @@ assert.match(
 );
 assert.match(
   css,
+  /:has\(button\):not\(\[class~="h-full"\]\):not\(\[class~="w-full"\]\)[\s\S]{0,740}:is\([\s\S]{0,260}\[class\*="text-token-"\],[\s\S]{0,220}\[class\*="truncate"\],[\s\S]{0,220}\[class\*="font-"\][\s\S]{0,260}-webkit-text-fill-color:\s*var\(--ds-text\) !important;[\s\S]{0,120}text-shadow:\s*0 1px 2px rgb\(var\(--ds-bg-rgb\) \/ \.72\) !important;/,
+  "Attachment and edited-file card descendants must not inherit dark native text on dark glass.",
+);
+assert.match(
+  css,
+  /:is\([\s\S]{0,120}pre,[\s\S]{0,160}\[class\*="terminal"\],[\s\S]{0,160}\[class\*="xterm"\],[\s\S]{0,160}\[class\*="whitespace-pre"\],[\s\S]{0,180}\[class\*="font-mono"\]:not\(code\)[\s\S]{0,360}background:\s*linear-gradient\(135deg,[\s\S]{0,220}-webkit-text-fill-color:\s*rgb\(var\(--ds-text-rgb\) \/ \.96\) !important;/,
+  "Terminal and command-output surfaces must render as deep readable monospace panels.",
+);
+assert.match(
+  css,
   /\[class\*="bg-token-main-surface-primary"\],[\s\S]{0,180}\[class\*="bg-token-input-background"\]\):has\(button\)[\s\S]{0,260}background-image:\s*var\(--ds-glass-sheen\), var\(--ds-readable-deep-gradient, var\(--ds-readable-gradient\)\) !important;/,
   "Attachment and input-adjacent cards should use a deeper readable glass surface.",
 );
@@ -483,13 +493,13 @@ assert.match(
 );
 assert.match(
   css,
-  /\[class\*="text-token-git-decoration-added"[\s\S]{0,220}color:\s*var\(--ds-diff-add\) !important;[\s\S]{0,180}font-weight:\s*650 !important;/,
-  "Git added counts should keep a high-contrast green treatment.",
+  /\[class\*="text-token-git-decoration-added"[\s\S]{0,260}\[class\*="ansi-green"\],[\s\S]{0,120}\[class\*="ansi-bright-green"\],[\s\S]{0,120}\[class\*="text-green-"\][\s\S]{0,220}color:\s*var\(--ds-diff-add\) !important;[\s\S]{0,180}font-weight:\s*650 !important;/,
+  "Git added counts and ANSI green terminal spans should keep a high-contrast green treatment.",
 );
 assert.match(
   css,
-  /\[class\*="text-token-git-decoration-deleted"[\s\S]{0,220}color:\s*var\(--ds-diff-delete\) !important;[\s\S]{0,180}font-weight:\s*650 !important;/,
-  "Git deleted counts should keep a high-contrast red treatment.",
+  /\[class\*="text-token-git-decoration-deleted"[\s\S]{0,260}\[class\*="ansi-red"\],[\s\S]{0,120}\[class\*="ansi-bright-red"\],[\s\S]{0,120}\[class\*="text-red-"\][\s\S]{0,220}color:\s*var\(--ds-diff-delete\) !important;[\s\S]{0,180}font-weight:\s*650 !important;/,
+  "Git deleted counts and ANSI red terminal spans should keep a high-contrast red treatment.",
 );
 assert.match(
   css,
@@ -620,6 +630,7 @@ function createFixture(theme, {
     documentElement: root,
     head: root,
     body,
+    activeElement: composerInput,
     createElement,
     getElementById(id) { return nodes.get(id) ?? null; },
     querySelector(selector) {
@@ -808,6 +819,9 @@ assert.equal(defaults.windowListeners.has("pointermove"), false);
 assert.equal(defaults.windowListeners.has("pointerleave"), false);
 assert.equal(defaults.documentListeners.has("beforeinput"), true);
 assert.equal(defaults.documentListeners.has("input"), true);
+assert.equal(defaults.documentListeners.has("paste"), true);
+assert.equal(defaults.documentListeners.has("compositionstart"), true);
+assert.equal(defaults.documentListeners.has("compositionupdate"), true);
 assert.equal(defaults.attributes.has("data-dream-pointer"), false);
 assert.equal(defaults.rootStyle.values.has("--ds-pointer-x"), false);
 assert.equal(defaults.rootStyle.values.has("--ds-pointer-y"), false);
@@ -819,6 +833,24 @@ assert.equal(
   defaults.threadScroller.scrollTop,
   -1200,
   "Composer typing should preserve the current thread scroll position immediately.",
+);
+defaults.threadScroller.scrollTop = -1200;
+defaults.documentListeners.get("compositionstart")({ target: defaults.composerInput });
+defaults.threadScroller.scrollTop = -1010;
+defaults.documentListeners.get("compositionupdate")({ target: defaults.composerInput });
+assert.equal(
+  defaults.threadScroller.scrollTop,
+  -1200,
+  "Composer composition updates should preserve the current thread scroll position.",
+);
+defaults.threadScroller.scrollTop = -1200;
+defaults.documentListeners.get("paste")({ target: defaults.composerInput });
+defaults.threadScroller.scrollTop = -1110;
+defaults.observers[0].callback([{ target: composerInputMutationNode, addedNodes: [], removedNodes: [] }]);
+assert.equal(
+  defaults.threadScroller.scrollTop,
+  -1200,
+  "Composer-only mutation bursts should also restore scroll after paste/editor updates.",
 );
 defaults.threadScroller.scrollTop = -924;
 defaults.flushTimers(180);

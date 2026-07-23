@@ -261,8 +261,8 @@ html.codex-dream-skin[data-dream-art-wide="true"] {
     rgb(var(--ds-neon-rgb) / .08)) !important;
   --ds-card-inner: rgb(var(--ds-panel-rgb) / .38) !important;
   --ds-caret-rgb: 108 232 255 !important;
-  --ds-scrollbar-thumb: rgb(var(--ds-neon-rgb) / .62) !important;
-  --ds-scrollbar-track: rgb(var(--ds-panel-rgb) / .20) !important;
+  --ds-scrollbar-thumb: rgb(var(--ds-neon-rgb) / .70) !important;
+  --ds-scrollbar-track: transparent !important;
   --ds-link-rgb: 255 212 105 !important;
   --ds-link: #ffebb3 !important;
   --ds-selection-bg-rgb: 255 212 105 !important;
@@ -1215,6 +1215,80 @@ html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-
   ):has(button):not([class~="h-full"]):not([class~="w-full"])
   :is(p, li, span, div, strong, em, a, code, button) {
   color: var(--ds-text) !important;
+  -webkit-text-fill-color: var(--ds-text) !important;
+  text-shadow: 0 1px 2px rgb(var(--ds-bg-rgb) / .72) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  :is(
+    [class*="bg-token-main-surface-primary"],
+    [class*="bg-token-main-surface-secondary"],
+    [class*="bg-token-input-background"],
+    [class*="bg-token-foreground/5"]
+  ):has(button):not([class~="h-full"]):not([class~="w-full"])
+  :is(
+    h1, h2, h3, h4, h5, h6,
+    p, li, span, div, small, strong, em,
+    button, [role="button"],
+    svg, path,
+    [class*="text-token-"],
+    [class*="truncate"],
+    [class*="font-"],
+    [class*="leading-"]
+  ) {
+  color: var(--ds-text) !important;
+  -webkit-text-fill-color: var(--ds-text) !important;
+  text-shadow: 0 1px 2px rgb(var(--ds-bg-rgb) / .72) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  :is(
+    pre,
+    [class*="terminal"],
+    [class*="xterm"],
+    [class*="whitespace-pre"],
+    [class*="font-mono"]:not(code)
+  ) {
+  border: 1px solid rgb(var(--ds-neon-rgb) / .24) !important;
+  background: linear-gradient(135deg,
+    rgb(var(--ds-panel-rgb) / .74),
+    rgb(var(--ds-panel-2-rgb) / .62) 72%,
+    rgb(var(--ds-neon-rgb) / .10)) !important;
+  color: rgb(var(--ds-text-rgb) / .96) !important;
+  -webkit-text-fill-color: rgb(var(--ds-text-rgb) / .96) !important;
+  text-shadow: 0 1px 2px rgb(var(--ds-bg-rgb) / .76) !important;
+}
+
+html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
+  :is(
+    [class*="text-token-git-decoration-added"],
+    [class*="text-token-git-decoration-added-resource-foreground"],
+    [class*="ansi-green"],
+    [class*="ansi-bright-green"],
+    [class*="text-green-"]
+  ) {
+  color: var(--ds-diff-add) !important;
+  -webkit-text-fill-color: var(--ds-diff-add) !important;
+  font-weight: 650 !important;
+  text-shadow:
+    0 1px 2px rgb(var(--ds-bg-rgb) / .82),
+    0 0 10px color-mix(in srgb, var(--ds-diff-add) 34%, transparent) !important;
+}
+
+html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
+  :is(
+    [class*="text-token-git-decoration-deleted"],
+    [class*="text-token-git-decoration-deleted-resource-foreground"],
+    [class*="ansi-red"],
+    [class*="ansi-bright-red"],
+    [class*="text-red-"]
+  ) {
+  color: var(--ds-diff-delete) !important;
+  -webkit-text-fill-color: var(--ds-diff-delete) !important;
+  font-weight: 650 !important;
+  text-shadow:
+    0 1px 2px rgb(var(--ds-bg-rgb) / .82),
+    0 0 10px color-mix(in srgb, var(--ds-diff-delete) 32%, transparent) !important;
 }
 
 html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
@@ -1721,24 +1795,24 @@ html.codex-dream-skin[data-dream-art-wide="true"]
 
 html.codex-dream-skin[data-dream-art-wide="true"]
   :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar {
-  width: 10px !important;
-  height: 10px !important;
+  width: 8px !important;
+  height: 8px !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
   :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar-track {
-  background: var(--ds-scrollbar-track) !important;
+  background: transparent !important;
   border-radius: 999px !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
   :is([role="main"], .thread-scroll-container, .vertical-scroll-fade-mask)::-webkit-scrollbar-thumb {
   min-height: 48px !important;
-  border: 2px solid transparent !important;
+  border: 3px solid transparent !important;
   border-radius: 999px !important;
   background: var(--ds-scrollbar-thumb) !important;
-  background-clip: padding-box !important;
-  box-shadow: 0 0 10px rgb(var(--ds-neon-rgb) / .24) !important;
+  background-clip: content-box !important;
+  box-shadow: none !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"]
