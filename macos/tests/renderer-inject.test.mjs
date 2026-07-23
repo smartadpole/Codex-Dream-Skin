@@ -556,6 +556,11 @@ assert.match(
   /\[class\*="_markdown"\] :is\(thead, th\)[\s\S]{0,260}color:\s*var\(--ds-text\) !important;[\s\S]{0,160}text-shadow:\s*0 1px 2px rgb\(var\(--ds-bg-rgb\) \/ \.78\) !important;/,
   "Markdown table headers must not inherit dark native text on dark glass.",
 );
+assert.match(
+  css,
+  /\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover[\s\S]{0,220}\[class\*="_markdown"\] :is\(thead, th\)[\s\S]{0,260}background:\s*transparent !important;[\s\S]{0,220}color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,120}-webkit-text-fill-color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,120}text-shadow:\s*none !important;/,
+  "Hovered message table headers must invert with the surrounding collision surface instead of keeping a dark slab.",
+);
 
 function createStyleDeclaration() {
   const values = new Map();

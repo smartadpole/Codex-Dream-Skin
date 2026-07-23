@@ -1627,6 +1627,26 @@ html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
   -webkit-text-fill-color: currentColor !important;
 }
 
+html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  .thread-scroll-container .group.flex.min-w-0.flex-col:hover
+  [class*="_markdown"] :is(thead, th) {
+  background: transparent !important;
+  background-image: linear-gradient(90deg,
+    rgb(var(--ds-bg-rgb) / .08),
+    rgb(var(--ds-neon-rgb) / .10)) !important;
+  color: var(--ds-link-hover) !important;
+  -webkit-text-fill-color: var(--ds-link-hover) !important;
+  text-shadow: none !important;
+}
+
+html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  .thread-scroll-container .group.flex.min-w-0.flex-col:hover
+  [class*="_markdown"] th * {
+  color: var(--ds-link-hover) !important;
+  -webkit-text-fill-color: var(--ds-link-hover) !important;
+  text-shadow: none !important;
+}
+
 html.codex-dream-skin .main-surface:not(.dream-skin-home-shell)
   [class*="_markdown"] :is(td, th) {
   border-color: rgb(var(--ds-neon-rgb) / .16) !important;
