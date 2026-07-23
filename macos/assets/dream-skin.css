@@ -990,9 +990,6 @@ html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-hom
   backdrop-filter: none !important;
 }
 
-html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell) article:hover,
-html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
-  [class*="bg-token-foreground/5"]:hover,
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   .thread-scroll-container .group.flex.min-w-0.flex-col:hover {
   border-color: rgb(var(--ds-link-rgb) / .66) !important;
@@ -1014,8 +1011,6 @@ html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-hom
 
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   :is(
-    article:hover,
-    [class*="bg-token-foreground/5"]:hover,
     .thread-scroll-container .group.flex.min-w-0.flex-col:hover
   )
   :is(
@@ -1048,13 +1043,68 @@ html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-hom
 
 html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
   :is(
-    article:hover,
-    [class*="bg-token-foreground/5"]:hover,
     .thread-scroll-container .group.flex.min-w-0.flex-col:hover
   )
   :is(code, pre) {
   border-color: rgb(var(--ds-bg-rgb) / .20) !important;
   background: rgb(var(--ds-bg-rgb) / .10) !important;
+}
+
+html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  :is(
+    [class*="bg-token-foreground/5"]:hover,
+    [class*="bg-token-foreground/5"][data-message-author-role="user"]:hover,
+    [data-message-author-role="user"] [class*="bg-token-foreground/5"]:hover,
+    article[data-message-author-role="user"]:hover,
+    .thread-scroll-container .group.flex.min-w-0.flex-col[class*="bg-token-foreground/5"]:hover
+  ) {
+  border-color: rgb(var(--ds-link-rgb) / .38) !important;
+  color: var(--ds-text) !important;
+  background: transparent !important;
+  background-image: var(--ds-glass-sheen), var(--ds-message-gradient) !important;
+  box-shadow:
+    var(--ds-message-shadow),
+    inset 0 1px rgb(var(--ds-text-rgb) / .12),
+    0 0 0 1px rgb(var(--ds-link-rgb) / .14),
+    0 0 14px rgb(var(--ds-neon-rgb) / .10) !important;
+}
+
+html.codex-dream-skin[data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)
+  :is(
+    [class*="bg-token-foreground/5"]:hover,
+    [class*="bg-token-foreground/5"][data-message-author-role="user"]:hover,
+    [data-message-author-role="user"] [class*="bg-token-foreground/5"]:hover,
+    article[data-message-author-role="user"]:hover,
+    .thread-scroll-container .group.flex.min-w-0.flex-col[class*="bg-token-foreground/5"]:hover
+  )
+  :is(
+    [class*="_markdownContent"],
+    [class*="_markdownContent"] *,
+    [class*="text-token-"],
+    p,
+    li,
+    span,
+    strong,
+    em,
+    b,
+    i,
+    code,
+    pre,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    blockquote,
+    td,
+    th
+  ) {
+  color: var(--ds-text) !important;
+  -webkit-text-fill-color: var(--ds-text) !important;
+  text-shadow:
+    0 1px 2px rgb(var(--ds-bg-rgb) / .72),
+    0 0 8px rgb(var(--ds-bg-rgb) / .26) !important;
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"][data-dream-route="task"] .main-surface:not(.dream-skin-home-shell)

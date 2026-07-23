@@ -408,8 +408,23 @@ assert.match(
 );
 assert.match(
   css,
-  /article:hover,[\s\S]{0,220}\[class\*="bg-token-foreground\/5"\]:hover,[\s\S]{0,220}\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover[\s\S]{0,520}\[class\*="_markdownContent"\]\s+\*[\s\S]{0,620}color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,120}-webkit-text-fill-color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,120}text-shadow:\s*none !important;/,
+  /\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover[\s\S]{0,520}\[class\*="_markdownContent"\]\s+\*[\s\S]{0,620}color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,120}-webkit-text-fill-color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,120}text-shadow:\s*none !important;/,
   "Hovered conversation blocks must invert markdown text instead of leaving white glowing text on the collision background.",
+);
+assert.match(
+  css,
+  /\[class\*="bg-token-foreground\/5"\]:hover[\s\S]{0,520}color:\s*var\(--ds-text\) !important;[\s\S]{0,160}background-image:\s*var\(--ds-glass-sheen\), var\(--ds-message-gradient\) !important;[\s\S]{0,520}0 0 14px rgb\(var\(--ds-neon-rgb\) \/ \.10\) !important;/,
+  "User-authored compact bubbles should keep restrained readable glass instead of inheriting the collision-color hover fill.",
+);
+assert.match(
+  css,
+  /\[class\*="bg-token-foreground\/5"\]:hover[\s\S]{0,900}\[class\*="_markdownContent"\]\s+\*[\s\S]{0,620}color:\s*var\(--ds-text\) !important;[\s\S]{0,120}-webkit-text-fill-color:\s*var\(--ds-text\) !important;/,
+  "User bubble hover text should stay light and readable on the glass surface.",
+);
+assert.doesNotMatch(
+  css,
+  /article:hover,[\s\S]{0,220}\[class\*="bg-token-foreground\/5"\]:hover,[\s\S]{0,420}rgb\(var\(--ds-link-rgb\) \/ \.88\)/,
+  "Strong collision hover must not be assigned directly to user bubbles or generic article shells.",
 );
 assert.doesNotMatch(
   css,
