@@ -433,18 +433,23 @@ assert.match(
 );
 assert.match(
   css,
-  /\[class\*="bg-token-foreground\/5"\]:hover[\s\S]{0,520}color:\s*var\(--ds-text\) !important;[\s\S]{0,160}background-image:\s*var\(--ds-glass-sheen\), var\(--ds-message-gradient\) !important;[\s\S]{0,520}0 0 14px rgb\(var\(--ds-neon-rgb\) \/ \.10\) !important;/,
-  "User-authored compact bubbles should keep restrained readable glass instead of inheriting the collision-color hover fill.",
+  /\[class\*="bg-token-foreground\/5"\]:hover[\s\S]{0,520}color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,520}rgb\(var\(--ds-link-rgb\) \/ \.80\)[\s\S]{0,220}rgb\(var\(--ds-neon-rgb\) \/ \.46\)[\s\S]{0,520}0 0 22px rgb\(var\(--ds-link-rgb\) \/ \.24\)[\s\S]{0,180}0 0 16px rgb\(var\(--ds-neon-rgb\) \/ \.14\) !important;/,
+  "User-authored compact bubbles should become a whole-block collision-color focus on hover.",
 );
 assert.match(
   css,
-  /\[class\*="bg-token-foreground\/5"\]:hover[\s\S]{0,900}\[class\*="_markdownContent"\]\s+\*[\s\S]{0,620}color:\s*var\(--ds-text\) !important;[\s\S]{0,120}-webkit-text-fill-color:\s*var\(--ds-text\) !important;/,
-  "User bubble hover text should stay light and readable on the glass surface.",
+  /\[class\*="bg-token-foreground\/5"\]:hover[\s\S]{0,900}\[class\*="_markdownContent"\]\s+\*[\s\S]{0,620}color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,120}-webkit-text-fill-color:\s*var\(--ds-link-hover\) !important;[\s\S]{0,160}background:\s*transparent !important;[\s\S]{0,120}background-image:\s*none !important;[\s\S]{0,120}box-shadow:\s*none !important;[\s\S]{0,120}text-shadow:\s*none !important;/,
+  "User bubble hover text should invert cleanly and must not paint an extra inline text background.",
+);
+assert.match(
+  css,
+  /\[class\*="bg-token-foreground\/5"\]\s+:is\(\[class\*="whitespace-pre"\], \.text-size-chat\)[\s\S]{0,220}border-color:\s*transparent !important;[\s\S]{0,120}background:\s*transparent !important;[\s\S]{0,120}background-image:\s*none !important;[\s\S]{0,120}box-shadow:\s*none !important;/,
+  "User-authored message text wrappers must not inherit terminal/readable-card background slabs.",
 );
 assert.doesNotMatch(
   css,
   /article:hover,[\s\S]{0,220}\[class\*="bg-token-foreground\/5"\]:hover,[\s\S]{0,420}rgb\(var\(--ds-link-rgb\) \/ \.88\)/,
-  "Strong collision hover must not be assigned directly to user bubbles or generic article shells.",
+  "User bubbles may use their own block focus, but must not inherit the assistant hover's strongest .88 collision fill or generic article shell binding.",
 );
 assert.doesNotMatch(
   css,
