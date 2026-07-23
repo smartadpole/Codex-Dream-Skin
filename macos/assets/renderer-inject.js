@@ -103,12 +103,18 @@
     document.removeEventListener("cut", previous.composerInputRememberHandler, true);
     document.removeEventListener("compositionstart", previous.composerInputRememberHandler, true);
     document.removeEventListener("beforeinput", previous.composerInputRememberHandler, true);
+    document.removeEventListener("focusin", previous.composerInputRememberHandler, true);
   }
   if (previous?.composerInputRestoreHandler) {
     document.removeEventListener("keyup", previous.composerInputRestoreHandler, true);
     document.removeEventListener("input", previous.composerInputRestoreHandler, true);
     document.removeEventListener("compositionupdate", previous.composerInputRestoreHandler, true);
     document.removeEventListener("compositionend", previous.composerInputRestoreHandler, true);
+  }
+  if (previous?.composerUserScrollIntentHandler) {
+    document.removeEventListener("wheel", previous.composerUserScrollIntentHandler, true);
+    document.removeEventListener("touchstart", previous.composerUserScrollIntentHandler, true);
+    document.removeEventListener("pointerdown", previous.composerUserScrollIntentHandler, true);
   }
 
   const cssString = (value) => JSON.stringify(String(value ?? ""));
@@ -986,12 +992,18 @@
       document.removeEventListener("cut", state.composerInputRememberHandler, true);
       document.removeEventListener("compositionstart", state.composerInputRememberHandler, true);
       document.removeEventListener("beforeinput", state.composerInputRememberHandler, true);
+      document.removeEventListener("focusin", state.composerInputRememberHandler, true);
     }
     if (state?.composerInputRestoreHandler) {
       document.removeEventListener("keyup", state.composerInputRestoreHandler, true);
       document.removeEventListener("input", state.composerInputRestoreHandler, true);
       document.removeEventListener("compositionupdate", state.composerInputRestoreHandler, true);
       document.removeEventListener("compositionend", state.composerInputRestoreHandler, true);
+    }
+    if (state?.composerUserScrollIntentHandler) {
+      document.removeEventListener("wheel", state.composerUserScrollIntentHandler, true);
+      document.removeEventListener("touchstart", state.composerUserScrollIntentHandler, true);
+      document.removeEventListener("pointerdown", state.composerUserScrollIntentHandler, true);
     }
     if (state?.artUrl) URL.revokeObjectURL(state.artUrl);
     delete window[STATE_KEY];
@@ -1029,6 +1041,7 @@
   let composerScrollUntil = 0;
   let composerScrollFrame = null;
   let composerScrollTimers = [];
+  let composerUserScrollUntil = 0;
   const clearComposerScrollTimers = () => {
     for (const timer of composerScrollTimers) clearTimeout(timer);
     composerScrollTimers = [];
@@ -1037,6 +1050,7 @@
     composerScrollFrame = null;
     const scroller = document.querySelector(".thread-scroll-container");
     if (!scroller || composerScrollTop == null) return;
+    if (now() < composerUserScrollUntil) return;
     if (now() > composerScrollUntil && !composerInputElement(document.activeElement)) return;
     if (Math.abs(scroller.scrollTop - composerScrollTop) > 0.5) {
       scroller.scrollTop = composerScrollTop;
@@ -1050,7 +1064,7 @@
       restoreComposerScroll();
     }
     clearComposerScrollTimers();
-    composerScrollTimers = [32, 96, 180, 300, 480, 760].map((delay) => {
+    composerScrollTimers = [32, 96, 180, 300, 480, 760, 1120, 1500].map((delay) => {
       const timer = setTimeout(() => {
         restoreComposerScroll();
         composerScrollTimers = composerScrollTimers.filter((item) => item !== timer);
@@ -1071,7 +1085,7 @@
     const scroller = document.querySelector(".thread-scroll-container");
     if (!scroller) return;
     composerScrollTop = scroller.scrollTop;
-    composerScrollUntil = now() + 900;
+    composerScrollUntil = now() + 1800;
     const state = window[STATE_KEY];
     if (state?.installToken === installToken) {
       state.composerScrollTop = composerScrollTop;
@@ -1082,6 +1096,15 @@
     if (!composerInputElement(event.target)) return;
     if (composerScrollTop == null) composerInputRememberHandler(event);
     scheduleComposerScrollRestore();
+  };
+  const composerUserScrollIntentHandler = (event) => {
+    const scroller = document.querySelector(".thread-scroll-container");
+    if (!scroller || composerInputElement(event.target)) return;
+    if (event.target === scroller || scroller.contains(event.target)) {
+      composerUserScrollUntil = now() + 420;
+      const state = window[STATE_KEY];
+      if (state?.installToken === installToken) state.composerUserScrollUntil = composerUserScrollUntil;
+    }
   };
   const scrollButtonHandler = () => {
     restoreComposerScroll();
@@ -1143,8 +1166,10 @@
     composerScrollTimers,
     composerScrollTop,
     composerScrollUntil,
+    composerUserScrollUntil,
     composerInputRememberHandler,
     composerInputRestoreHandler,
+    composerUserScrollIntentHandler,
     currentSidebarSyncPending,
     sidebarPointerHandler,
     sidebarPanel: null,
@@ -1184,9 +1209,13 @@
   document.addEventListener("compositionstart", composerInputRememberHandler, true);
   document.addEventListener("compositionupdate", composerInputRestoreHandler, true);
   document.addEventListener("beforeinput", composerInputRememberHandler, true);
+  document.addEventListener("focusin", composerInputRememberHandler, true);
   document.addEventListener("keyup", composerInputRestoreHandler, true);
   document.addEventListener("input", composerInputRestoreHandler, true);
   document.addEventListener("compositionend", composerInputRestoreHandler, true);
+  document.addEventListener("wheel", composerUserScrollIntentHandler, true);
+  document.addEventListener("touchstart", composerUserScrollIntentHandler, true);
+  document.addEventListener("pointerdown", composerUserScrollIntentHandler, true);
   if (mediaHandler && mediaQuery) {
     mediaQuery.addEventListener("change", mediaHandler);
   }

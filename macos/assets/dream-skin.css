@@ -1292,6 +1292,50 @@ html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-
 }
 
 html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  .thread-scroll-container .group.flex.min-w-0.flex-col:hover
+  :is(
+    [class*="bg-token-main-surface-primary"],
+    [class*="bg-token-main-surface-secondary"],
+    [class*="bg-token-input-background"],
+    [class*="border-token-border"],
+    [class*="rounded-lg"],
+    [class*="rounded-xl"]
+  ):not(button):has(button):has(:is([class*="truncate"], [class*="text-token-"], [class*="font-"])) {
+  border-color: var(--ds-readable-border) !important;
+  background: transparent !important;
+  background-image: var(--ds-glass-sheen), var(--ds-readable-deep-gradient, var(--ds-readable-gradient)) !important;
+  color: var(--ds-text) !important;
+  box-shadow:
+    var(--ds-readable-shadow),
+    inset 0 1px rgb(var(--ds-text-rgb) / .10) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
+  .thread-scroll-container .group.flex.min-w-0.flex-col:hover
+  :is(
+    [class*="bg-token-main-surface-primary"],
+    [class*="bg-token-main-surface-secondary"],
+    [class*="bg-token-input-background"],
+    [class*="border-token-border"],
+    [class*="rounded-lg"],
+    [class*="rounded-xl"]
+  ):not(button):has(button):has(:is([class*="truncate"], [class*="text-token-"], [class*="font-"]))
+  :is(
+    h1, h2, h3, h4, h5, h6,
+    p, li, span, div, small, strong, em,
+    button, [role="button"],
+    svg, path,
+    [class*="text-token-"],
+    [class*="truncate"],
+    [class*="font-"],
+    [class*="leading-"]
+  ) {
+  color: var(--ds-text) !important;
+  -webkit-text-fill-color: var(--ds-text) !important;
+  text-shadow: 0 1px 2px rgb(var(--ds-bg-rgb) / .76) !important;
+}
+
+html.codex-dream-skin[data-dream-art-wide="true"] .main-surface:not(.dream-skin-home-shell)
   :is(
     pre,
     [class*="terminal"],
@@ -1882,6 +1926,27 @@ html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"]::-webkit-
 
 html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"]::-webkit-scrollbar-track,
 html.codex-dream-skin .app-shell-left-panel [class*="overflow-y-auto"]::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html.codex-dream-skin .vertical-scroll-fade-mask[class*="sidebar-footer-height"],
+html.codex-dream-skin .vertical-scroll-fade-mask[class*="--height-token-row"] {
+  scrollbar-color: transparent transparent !important;
+  scrollbar-width: none !important;
+}
+
+html.codex-dream-skin .vertical-scroll-fade-mask[class*="sidebar-footer-height"]::-webkit-scrollbar,
+html.codex-dream-skin .vertical-scroll-fade-mask[class*="--height-token-row"]::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+}
+
+html.codex-dream-skin .vertical-scroll-fade-mask[class*="sidebar-footer-height"]::-webkit-scrollbar-track,
+html.codex-dream-skin .vertical-scroll-fade-mask[class*="sidebar-footer-height"]::-webkit-scrollbar-thumb,
+html.codex-dream-skin .vertical-scroll-fade-mask[class*="--height-token-row"]::-webkit-scrollbar-track,
+html.codex-dream-skin .vertical-scroll-fade-mask[class*="--height-token-row"]::-webkit-scrollbar-thumb {
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;

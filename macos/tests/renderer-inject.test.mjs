@@ -216,6 +216,16 @@ assert.match(
   /const observer = new MutationObserver\(\(records\) => \{[\s\S]{0,180}mutationsOnlyTouchComposerInput\(records\)[\s\S]{0,180}scheduleComposerScrollRestore\(\)[\s\S]{0,180}mutationsTouchRouteState\(records\)[\s\S]{0,120}scheduleScrollBottomSync\(\)/,
   "Composer typing mutations should restore the current scroll without triggering route/sidebar sync or bottom-scroll sync.",
 );
+assert.match(
+  template,
+  /composerScrollTimers = \[32, 96, 180, 300, 480, 760, 1120, 1500\][\s\S]{0,900}composerScrollUntil = now\(\) \+ 1800;/,
+  "Composer scroll preservation must cover delayed editor nudges after typing, paste, and composition.",
+);
+assert.match(
+  template,
+  /const composerUserScrollIntentHandler = \(event\) => \{[\s\S]{0,240}composerInputElement\(event\.target\)[\s\S]{0,260}composerUserScrollUntil = now\(\) \+ 420;/,
+  "Composer scroll preservation must yield to explicit wheel/touch/pointer scrolling in the thread.",
+);
 assert.doesNotMatch(
   template,
   /if \(!item\.querySelector\('\[class~="bg-token-list-hover-background"\]'\)\) return false;/,
@@ -368,6 +378,16 @@ assert.match(
 );
 assert.match(
   css,
+  /\.vertical-scroll-fade-mask\[class\*="--height-token-row"\][\s\S]{0,160}scrollbar-color:\s*transparent transparent !important;[\s\S]{0,80}scrollbar-width:\s*none !important;/,
+  "The real sidebar scroll container must not inherit the prominent content scrollbar.",
+);
+assert.match(
+  css,
+  /\.vertical-scroll-fade-mask\[class\*="--height-token-row"\]::-webkit-scrollbar\s*\{[\s\S]{0,80}width:\s*0 !important;[\s\S]{0,80}height:\s*0 !important;/,
+  "The real sidebar scroll container should not paint a thick WebKit scrollbar capsule.",
+);
+assert.match(
+  css,
   /button\[aria-label="Show less"\][\s\S]{0,620}div\[class~="py-1"\] > button\[class~="no-drag"\][\s\S]{0,180}opacity:\s*1 !important;/,
   "Sidebar Show more/Show less controls must remain visible instead of inheriting placeholder opacity.",
 );
@@ -460,6 +480,16 @@ assert.match(
   css,
   /:has\(button\):not\(\[class~="h-full"\]\):not\(\[class~="w-full"\]\)[\s\S]{0,740}:is\([\s\S]{0,260}\[class\*="text-token-"\],[\s\S]{0,220}\[class\*="truncate"\],[\s\S]{0,220}\[class\*="font-"\][\s\S]{0,260}-webkit-text-fill-color:\s*var\(--ds-text\) !important;[\s\S]{0,120}text-shadow:\s*0 1px 2px rgb\(var\(--ds-bg-rgb\) \/ \.72\) !important;/,
   "Attachment and edited-file card descendants must not inherit dark native text on dark glass.",
+);
+assert.match(
+  css,
+  /\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover[\s\S]{0,900}:has\(button\):has\(:is\(\[class\*="truncate"\],[\s\S]{0,420}background-image:\s*var\(--ds-glass-sheen\), var\(--ds-readable-deep-gradient,/,
+  "Attachment and edited-file cards inside a hovered message must keep light text instead of inheriting the message inverse text color.",
+);
+assert.match(
+  css,
+  /\.thread-scroll-container \.group\.flex\.min-w-0\.flex-col:hover[\s\S]{0,1600}:has\(button\):has\(:is\(\[class\*="truncate"\],[\s\S]{0,900}-webkit-text-fill-color:\s*var\(--ds-text\) !important;/,
+  "Attachment and edited-file card descendants inside a hovered message must keep light text fill.",
 );
 assert.match(
   css,
@@ -835,8 +865,11 @@ assert.equal(defaults.windowListeners.has("pointerleave"), false);
 assert.equal(defaults.documentListeners.has("beforeinput"), true);
 assert.equal(defaults.documentListeners.has("input"), true);
 assert.equal(defaults.documentListeners.has("paste"), true);
+assert.equal(defaults.documentListeners.has("focusin"), true);
 assert.equal(defaults.documentListeners.has("compositionstart"), true);
 assert.equal(defaults.documentListeners.has("compositionupdate"), true);
+assert.equal(defaults.documentListeners.has("wheel"), true);
+assert.equal(defaults.documentListeners.has("touchstart"), true);
 assert.equal(defaults.attributes.has("data-dream-pointer"), false);
 assert.equal(defaults.rootStyle.values.has("--ds-pointer-x"), false);
 assert.equal(defaults.rootStyle.values.has("--ds-pointer-y"), false);
@@ -873,6 +906,16 @@ assert.equal(
   defaults.threadScroller.scrollTop,
   -1200,
   "Composer typing should also restore delayed editor scroll nudges.",
+);
+defaults.threadScroller.scrollTop = -1200;
+defaults.documentListeners.get("beforeinput")({ target: defaults.composerInput });
+defaults.documentListeners.get("wheel")({ target: defaults.threadScroller });
+defaults.threadScroller.scrollTop = -840;
+defaults.documentListeners.get("input")({ target: defaults.composerInput });
+assert.equal(
+  defaults.threadScroller.scrollTop,
+  -840,
+  "Composer scroll preservation should yield to explicit thread wheel scrolling.",
 );
 
 // Auto appearance must continue following the native shell after the skin is
